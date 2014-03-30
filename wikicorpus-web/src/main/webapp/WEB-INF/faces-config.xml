@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<faces-config xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
+    version="2.0">
+  <application>
+    <locale-config>
+      <default-locale>en</default-locale>
+      <supported-locale>de</supported-locale>
+    </locale-config>
+  </application>
+  
+  
+  
+    <!-- ================ Navigation Rules =========================================== -->
+
+    <navigation-rule>
+      <navigation-case>
+        <from-outcome>errorhandler</from-outcome>
+        <to-view-id>/ErrorHandler.jsf</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+
+    <!-- anonymous nav actions -->
+    <navigation-rule>
+      <navigation-case>
+        <from-outcome>topnav_welcome</from-outcome>
+        <to-view-id>/welcome/Welcome.jsf</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+      <navigation-case>
+        <from-outcome>topnav_model</from-outcome>
+        <to-view-id>/model/Model.jsf</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+      <navigation-case>
+        <from-outcome>topnav_javadocs</from-outcome>
+        <to-view-id>/javadocs/Javadocs.jsf</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+      <navigation-case>
+        <from-outcome>topnav_about</from-outcome>
+        <to-view-id>/about/About.jsf</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+     
+</faces-config>

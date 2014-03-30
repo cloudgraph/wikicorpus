@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cfg:PlasmaConfiguration  
+    xmlns:cfg="http://www.plasma.org/config">
+  
+
+    <SDO>
+        <GlobalProvisioning 
+            packageName="org.plasma.platform.sdo">
+            
+           <Interface/>          
+           <Implementation classNameSuffix="Impl"
+               childPackageName="impl"/>  
+           <QueryDSL>
+               <Implementation classNamePrefix="Q"
+                   childPackageName="query"/>  
+           </QueryDSL>
+                        
+        </GlobalProvisioning>            
+    
+        <!-- default namespace used for SDO infra itself, such as SDO datatypes -->
+        <DefaultNamespace uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi"
+            artifact="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi">
+            <Provisioning packageName="org.plasma.platform.sdo"/>
+  		</DefaultNamespace>
+  		   
+        <Namespace uri="http://cloudgraph.org/examples/corpus/parse"
+            artifact="http://corpus.mdxml">
+            <Provisioning packageName="org.cloudgraph.examples.corpus.parse"/>
+  		</Namespace>
+        <Namespace uri="http://cloudgraph.org/examples/corpus/wiki"
+            artifact="http://corpus.mdxml">
+            <Provisioning packageName="org.cloudgraph.examples.corpus.wiki"/>
+  		</Namespace>
+        <Namespace uri="http://cloudgraph.org/examples/corpus/search"
+            artifact="http://corpus.mdxml">
+            <Provisioning packageName="org.cloudgraph.examples.corpus.search"/>
+        </Namespace>
+        <Namespace uri="http://cloudgraph.org/examples/corpus/time"
+            artifact="http://corpus.mdxml">
+            <Provisioning packageName="org.cloudgraph.examples.corpus.time"/>
+  		</Namespace>
+  		
+        <Namespace uri="http://cloudgraph.org/examples/wordnet"
+            artifact="http://wordnet.mdxml">
+            <Provisioning packageName="org.cloudgraph.examples.corpus.wordnet"/>
+        </Namespace>
+  		
+        <DataAccessService dataStoreType="NOSQL">   
+
+            <DataAccessProvider name="HBASE"
+                className="org.cloudgraph.hbase.service.HBaseGraphService">
+                
+                <SequenceConfiguration  
+                    generatorClassName="org.hgraph.generator.HBaseSequenceGenerator"/>         
+                <Concurrency 
+                    pessimisticLockTimeoutMillis="300000"/>
+                
+                <!-- links HBASE specific DAS provisioning to SDO namespace configs -->                 
+                <NamespaceLink uri="http://cloudgraph.org/examples/corpus/parse"/>
+                <NamespaceLink uri="http://cloudgraph.org/examples/corpus/wiki"/>
+                <NamespaceLink uri="http://cloudgraph.org/examples/corpus/time"/>
+                <NamespaceLink uri="http://cloudgraph.org/examples/wordnet"/>
+               
+              
+            </DataAccessProvider>
+        </DataAccessService> 
+               
+  	      	
+    </SDO>
+    
+    <Repository> 
+        <!-- Would like to use our own namespace here (say 'http://www.servicelabs.org/plasma/sdo/profile') but MagicDraw
+            unfortunately bakes this namespace e.g. 'http://www.magicdraw.com/schemas/*'  
+            into any and every model that references a profile. You can change
+            the namespace declaration by hand in the XMI but next time the
+            model is changed, MD will change it back !!
+        -->
+        <Artifact name="Plasma_SDO_Profile.mdxml"
+            urn="Plasma_SDO_Profile.mdxml" 
+            namespaceUri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi"/>
+               
+        <Artifact name="corpus.mdxml"
+            urn="corpus.mdxml" 
+            namespaceUri="http://corpus.mdxml"/>
+             
+        <Artifact name="wordnet.mdxml"
+            urn="wordnet.mdxml" 
+            namespaceUri="http://wordnet.mdxml"/>
+     </Repository>
+    
+  
+</cfg:PlasmaConfiguration>   

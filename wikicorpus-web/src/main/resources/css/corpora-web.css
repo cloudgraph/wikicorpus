@@ -1,0 +1,246 @@
+
+BODY
+{
+    background-color: #F5F5F5; /*  */
+    /*  background-color: #DEB887 burlywood */
+    /*  background-color: #CDB79E   bisque2 */
+    /*    background-color: #EEE9E9;  snow 2 */
+}
+
+.AlignCenter{
+  align: center;
+  text-align: center;
+}
+
+.AlignTop{
+  align: top;
+  text-align: top;
+  vertical-align: top
+}
+
+.AlignBottom{
+  align: bottom;
+  vertical-align: bottom
+}
+
+.AlignLeft{
+  align: left;
+  text-align: left;
+}
+
+.AlignRight{
+  align: right;
+  text-align: right;
+}
+
+
+.FormPanelRow{
+  align: left;
+  word-wrap: no;
+  text-align: left;
+}
+
+.FormLabelColumn{
+  align: right;
+  text-align: right;
+  FONT-WEIGHT: bold;
+}
+
+.FormControlColumn{
+  align: center;
+  white-space : nowrap;
+}
+
+.FormMessageColumn{
+  align: left;
+  color:#FF0000;
+}
+
+.FormPanelDiv{
+           height:40px;
+           width:100%px;
+	   border-top:1px solid #6b8dcd;	
+	   border-left:1px solid #6b8dcd;
+	   border-right:1px solid #6b8dcd;	
+  	   border-bottom:1px solid #6b8dcd;
+  	   background-color: #d3dbee;
+           padding:5px 5px 5px 5px;
+
+}
+
+.TableLink a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TableLink a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TableLink a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:none}
+.TableLink a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TableLink a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:none}
+
+
+.TopToolbarDiv {
+  POSITION: absolute;
+  LEFT: 200px;
+  TOP: 5px;
+  height:20px;
+  align: right;
+  text-align: right;
+  color: #000000;
+  font: 12px arial;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.TopToolbarDiv a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TopToolbarDiv a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TopToolbarDiv a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #0000FF; text-decoration:none}
+.TopToolbarDiv a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TopToolbarDiv a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:none}
+
+.CaptionDiv{
+	color: #000000;
+    font: 18px arial;
+    FONT-WEIGHT: bold;
+    TEXT-DECORATION: none;
+    COLOR: black;
+    border-width: 0px;
+}
+
+.CaptionMinorDiv{
+    color: #000000;
+    font: 14px arial;
+    FONT-WEIGHT: bold;
+    TEXT-DECORATION: none;
+    COLOR: black;
+    border-width: 0px;
+}
+
+.ChartBodyDiv {
+  width:100%;
+  height:100%;
+}
+
+.ChartDiv {
+  width:100%;
+  height:100%;
+  border-width: 2px;
+  border-style: inset;
+}
+
+.ChartButtonDiv {
+  border-width: 1px;
+  border-style: outset;
+  width: 30px;
+  height: 19px;
+  align: center;
+  text-align: center;
+}
+
+
+.NavTreeDiv{
+    WIDTH: 235px;
+    word-wrap: yes;
+    overflow-y: auto;
+}
+
+.NavTableDiv{
+    WIDTH: 235px;
+    HEIGHT: 120px;
+    word-wrap: yes;
+    overflow-y: auto;
+}
+
+.NavTableDivAuto{
+    WIDTH: 235px;
+    word-wrap: yes;
+}
+
+.ListNavItem{
+  WIDTH: 100%;
+  font-weight:bold;
+  align: left;
+  word-wrap: yes;
+  align: left;
+  text-align: left;
+}
+
+.LeftNavDiv{
+  WIDTH: 250px;
+  align: top;
+  text-align: top;
+  vertical-align: top
+}
+
+
+.MainDiv{
+  POSITION: absolute;
+  LEFT: px;
+  TOP: 0px;
+  WIDTH: 100%;
+  
+}
+
+
+.TopNavDiv{
+  POSITION: absolute;
+  LEFT: 6px;
+  TOP: 124px;
+  align: right;
+  text-align: right;
+  HEIGHT: 27px;
+  WIDTH: 98%;
+  border-width: 0px;
+}
+
+.TopNavDivLeft{
+  POSITION: absolute;
+  LEFT: 20px;
+  TOP: 121px;
+  align: left;
+  text-align: left;
+  WIDTH: 100%;
+  HEIGHT: 27px;
+  overflow: hidden;
+  border-width: 0px;
+}
+.TopNav{
+}
+
+.TopNav a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TopNav a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TopNav a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #0000FF; text-decoration:none}
+.TopNav a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TopNav a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:none}
+
+
+.TopNavActive{
+}
+
+.TopNavActive a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:underline}
+.TopNavActive a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:underline}
+.TopNavActive a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #0000FF; text-decoration:underline}
+.TopNavActive a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:underline}
+.TopNavActive a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:underline}
+    
+    
+.ContentDiv{  
+  POSITION: absolute;
+  LEFT: 280px;
+  TOP: 170px;
+  align: left;
+  text-align: left;
+  border-width: 0px 0px 0px 0px;
+}
+
+.ContentDivLeft{
+  POSITION: absolute;
+  LEFT: 16px;
+  TOP: 170px;
+  align: left;
+  text-align: left;
+  border-width: 0px 0px 0px 0px;
+}
+
+.SenseTable td {
+    white-space:normal !important;
+}
+
+ 
+

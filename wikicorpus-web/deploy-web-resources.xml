@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<project name="deploy" default="all" basedir=".">
+
+    <description>
+        ant stript to just copy web data to local tomcat
+    </description>
+    <property name="web.src.dir" value="./src/main/webapp/"/>
+    <property name="web.resource.dir" value="./src/main/resources/"/>
+    <property name="tomcat.deploy.dir" value="C:\apache-tomcat-7.0.42\webapps\wikicorpus"/>
+	
+   
+    <target name="all" depends="copy-web-resources" description="">
+    </target>	
+	
+	<target name="copy-web-resources">                                                               
+	   <copy overwrite="yes" toDir="${tomcat.deploy.dir}">
+		  <fileset dir="${web.src.dir}">
+		      <include name="**/*.xhtml"/>
+              <include name="**/*.jsp"/>
+		  </fileset>
+	   </copy>
+	   <copy overwrite="yes" toDir="${tomcat.deploy.dir}/resources">
+		  <fileset dir="${web.resource.dir}">
+		      <include name="**/*.css"/>
+		      <include name="**/*.properties"/>
+		      <include name="**/*.js"/>
+		      <include name="**/*.htc"/>
+		  </fileset>
+	   </copy>
+	</target>                                                               
+	
+	
+</project>
+

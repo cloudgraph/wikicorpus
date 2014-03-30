@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+	The XML Corpus Encoding Standard
+	XCES Revision 0.4
+		
+	Documents with &lt;xces:doc&gt; elements as the root contain the primary data with segmentation
+	annotations.
+-->
+<xs:schema targetNamespace="http://www.xces.org/schema/2003"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xces="http://www.xces.org/schema/2003"
+	elementFormDefault="qualified" version="1.0.4">
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+	<xs:include schemaLocation="xcesDatatypes.xsd"/>
+	<!--
+	The root elements for xcesDoc documents.
+		  -->
+	<xs:element name="doc" type="xces:xcesDocType"/>
+	<xs:element name="cesDoc" type="xces:xcesDocType"/>
+	<xs:element name="cesCorpus" type="xces:xcesCorpusType"/>
+	<!-- First restrict class.global as set the TEIform attribute -->
+	<xs:complexType name="xcesCorpusBase" mixed="false">
+		<xs:complexContent>
+			<xs:restriction base="xces:class.global">
+				<xs:attribute name="TEIform" type="xs:string" fixed="teiCorpus.2"/>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- Now add the content model -->	
+	<!-- ELEMENT cesCorpus     (cesHeader,(cesDoc+ | cesCorpus+)) -->
+	<xs:complexType name="xcesCorpusType" mixed="false">
+		<xs:complexContent>
+			<xs:extension base="xces:xcesCorpusBase">
+				<xs:sequence>
+					<xs:group ref="xces:headerGroup"/>
+					<xs:choice>
+						<xs:element minOccurs="1" maxOccurs="unbounded" name="doc" type="xces:xcesDocType"/>
+						<xs:element minOccurs="1" maxOccurs="unbounded" name="cesDoc" type="xces:xcesDocType"/>
+						<xs:element minOccurs="1" maxOccurs="unbounded" name="cesCorpus" type="xces:xcesCorpusType"/>
+					</xs:choice>
+				</xs:sequence>
+				<xs:attribute name="version" type="xs:string"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

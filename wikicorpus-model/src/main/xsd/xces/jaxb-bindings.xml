@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jxb:bindings version="1.0"
+               xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+               xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <jxb:globalBindings
+         fixedAttributeAsConstantProperty="false"
+         collectionType="java.util.ArrayList"
+         choiceContentProperty="true"
+         typesafeEnumMemberName="generateError"
+         enableFailFastCheck="false"   
+         generateIsSetMethod="false"
+         underscoreBinding="asCharInWord">
+         <xjc:simple />
+    </jxb:globalBindings>
+ 
+    <jxb:bindings schemaLocation="xcesGlobal.xsd" node="/xsd:schema">
+        <jxb:bindings node=".//xsd:attribute[@name='lang']">
+            <jxb:property name="xcesLang"/>
+        </jxb:bindings>   
+    </jxb:bindings>
+    <jxb:bindings schemaLocation="xcesDatatypes.xsd" node="/xsd:schema">
+        <!--  
+        <jxb:schemaBindings>
+            <jxb:package name="org.xces.common">
+                <jxb:javadoc><![CDATA[<body>Package level documentation for package org.xces.common.</body>]]></jxb:javadoc>
+            </jxb:package>
+        </jxb:schemaBindings>
+        -->
+        <jxb:bindings node=".//xsd:complexType[@name='cellType']//xsd:attribute[@name='rows']">
+            <jxb:property name="cellRows"/>
+        </jxb:bindings>   
+        <jxb:bindings node=".//xsd:complexType[@name='tableType']//xsd:attribute[@name='rows']">
+            <jxb:property name="tableRows"/>
+        </jxb:bindings>   
+        <jxb:bindings node=".//xsd:attributeGroup[@name='a.ana']//xsd:attribute[@name='type']">
+            <jxb:property name="anaType"/>
+        </jxb:bindings>   
+    </jxb:bindings>
+    <jxb:bindings schemaLocation="xcesHeader.xsd" node="/xsd:schema">
+        <jxb:bindings node=".//xsd:complexType[@name='annotationString']//xsd:attribute[@name='type']">
+            <jxb:property name="anaType"/>
+        </jxb:bindings>   
+    </jxb:bindings>
+    <!--  
+    <jxb:bindings schemaLocation="xcesDoc.xsd" node="/xsd:schema">
+        <jxb:schemaBindings>
+            <jxb:package name="org.xces.doc">
+                <jxb:javadoc><![CDATA[<body>Package level documentation for package org.xces.doc.</body>]]></jxb:javadoc>
+            </jxb:package>
+        </jxb:schemaBindings>
+    </jxb:bindings>
+     -->
+    <jxb:bindings schemaLocation="xcesAna.xsd" node="/xsd:schema">
+         
+        <jxb:schemaBindings>
+            <jxb:package name="org.xces.ana">
+                <jxb:javadoc><![CDATA[<body>Package level documentation for package org.xces.ana.</body>]]></jxb:javadoc>
+            </jxb:package>
+        </jxb:schemaBindings>
+          
+    </jxb:bindings>
+     <!--  
+    <jxb:bindings schemaLocation="xcesSpoken.xsd" node="/xsd:schema">
+        <jxb:schemaBindings>
+            <jxb:package name="org.xces.spoken">
+                <jxb:javadoc><![CDATA[<body>Package level documentation for package org.xces.spoken.</body>]]></jxb:javadoc>
+            </jxb:package>
+        </jxb:schemaBindings>
+    </jxb:bindings>
+    -->
+</jxb:bindings>

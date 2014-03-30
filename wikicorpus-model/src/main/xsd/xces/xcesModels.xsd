@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+	The XML Corpus Encoding Standard
+	XCES Revision 0.4
+		
+	Content model defintions.
+	
+	NOTE: This schema will not validate on its own, it is meant to be included by other schemas.  In particular, this schema
+	defines the content models for the types defined in xcesDatatypes.xsd.
+	
+-->
+<xs:schema targetNamespace="http://www.xces.org/schema/2003"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xces="http://www.xces.org/schema/2003"
+    elementFormDefault="qualified" version="1.0.4">
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/> 
+    <!-- Elements that can appear at the paragraph level. -->
+    <xs:group name="m.inter">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">Paragraph-level elements, i.e., elements which can
+                appear inside &lt;div&gt; elements at the paragraph level, or between paragraphs</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="bibl" type="xces:biblType"/>
+            <xs:element name="quote" type="xces:quoteType"/>
+            <xs:element name="list" type="xces:listType"/>
+            <xs:element name="poem" type="xces:poemType"/>
+            <xs:element name="note" type="xces:noteType"/>
+            <xs:element name="caption" type="xces:captionType"/>
+            <xs:element name="figure" type="xces:figureType"/>
+            <xs:element name="table" type="xces:tableType"/>
+            <!-- 0.4 removed the head element, and put it back in... -->
+                        <xs:element name="head" type="xces:headType"/>
+             <!-- -->
+        </xs:choice>
+    </xs:group>
+    <!-- Elements appearing in class.token -->
+    <xs:group name="m.token">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">Elements which are regarded as individual tokens even
+                when they may contain sub-constituents.</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="abbr" type="xces:abbrType"/>
+            <xs:element name="date" type="xces:dateType"/>
+            <xs:element name="num" type="xces:numType"/>
+            <xs:element name="measure" type="xces:measureType"/>
+            <xs:element name="name" type="xces:nameType"/>
+            <xs:element name="term" type="xces:termType"/>
+            <xs:element name="time" type="xces:timeType"/>
+        	<!-- 0.4 Added tok elements to eliminate the need for "merged" versions of the schemas -->
+        	<xs:element name="tok" type="xces:tokType"/>
+        </xs:choice>
+    </xs:group>
+    <!-- Elements in class.common -->
+    <xs:group name="m.common">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">Common elements used to define sequences</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="list" type="xces:listType"/>
+            <xs:element name="corr" type="xces:corrType"/>
+            <xs:element name="gap" type="xces:gapType"/>
+            <xs:element name="reg" type="xces:regType"/>
+            <xs:element name="ptr"/>
+            <xs:element name="ref" type="xces:refType"/>
+            <xs:element name="note" type="xces:noteType"/>
+        </xs:choice>
+    </xs:group>
+    <!--
+		Various phrase sequences.  
+	-->
+    <xs:group name="m.phrase.seq">
+        <xs:annotation>
+            <xs:documentation xml:lang="en"> The sequence m.phrase.seq is the base sequence and the
+                others sequences are subsets of m.phrase.seq. Each subset contains all the elements
+                of m.phrase.seq except for one. For example m.phrase.hi.seq contains all elements
+                but &lt;hi&gt;. </xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:group ref="xces:m.token"/>
+            <xs:group ref="xces:m.common"/>
+            <xs:element name="foreign" type="xces:phrase.foreign.seq"/>
+            <xs:element name="mentioned" type="xces:phrase.mentioned.seq"/>
+            <xs:element name="distinct" type="xces:distinctType"/>
+            <xs:element name="title" type="xces:phrase.title.seq"/>
+        	<!-- 0.4 Changed the "hi" element to be of xces:hiType again. -->
+            <xs:element name="hi" type="xces:hiType"/>
+            <!-- 0.4 Add the emphasis element -->
+            <xs:element name="emph" type="xces:hiType"/>
+        </xs:choice>
+    </xs:group>
+    <xs:group name="m.phrase.hi.seq">
+        <xs:choice>
+            <xs:group ref="xces:m.token"/>
+            <xs:group ref="xces:m.common"/>
+            <xs:element name="foreign" type="xces:phrase.foreign.seq"/>
+            <xs:element name="mentioned" type="xces:phrase.mentioned.seq"/>
+            <xs:element name="distinct" type="xces:distinctType"/>
+            <xs:element name="title" type="xces:phrase.title.seq"/>
+            <!-- 0.4 Add the emphasis element -->
+            <xs:element name="emph" type="xces:hiType"/>
+        </xs:choice>
+    </xs:group>
+    <xs:group name="m.phrase.foreign.seq">
+        <xs:choice>
+            <xs:group ref="xces:m.token"/>
+            <xs:group ref="xces:m.common"/>
+            <xs:element name="mentioned" type="xces:phrase.mentioned.seq"/>
+            <xs:element name="distinct" type="xces:distinctType"/>
+            <xs:element name="title" type="xces:phrase.title.seq"/>
+        	<!-- 0.4 Changed hi to be of hiType, was phrase.hi.seq -->
+            <xs:element name="hi" type="xces:hiType"/>
+            <!-- 0.4 Add the emphasis element -->
+            <xs:element name="emph" type="xces:hiType"/>
+        </xs:choice>
+    </xs:group>
+    <xs:group name="m.phrase.distinct.seq">
+        <xs:choice>
+            <xs:group ref="xces:m.token"/>
+            <xs:group ref="xces:m.common"/>
+            <xs:element name="foreign" type="xces:phrase.foreign.seq"/>
+            <xs:element name="mentioned" type="xces:phrase.mentioned.seq"/>
+            <xs:element name="title" type="xces:phrase.title.seq"/>
+        	<!-- 0.4 Changed hi to be of hiType, was phrase.hi.seq -->
+            <xs:element name="hi" type="xces:hiType"/>
+            <!-- 0.4 Add the emphasis element -->
+            <xs:element name="emph" type="xces:hiType"/>
+        </xs:choice>
+    </xs:group>
+    <xs:group name="m.phrase.mentioned.seq">
+        <xs:choice>
+            <xs:group ref="xces:m.token"/>
+            <xs:group ref="xces:m.common"/>
+            <xs:element name="foreign" type="xces:phrase.foreign.seq"/>
+            <xs:element name="distinct" type="xces:distinctType"/>
+            <xs:element name="title" type="xces:phrase.title.seq"/>
+        	<!-- 0.4 Changed hi to be of hiType, was phrase.hi.seq -->
+            <xs:element name="hi" type="xces:hiType"/>
+            <!-- 0.4 Add the emphasis element -->
+            <xs:element name="emph" type="xces:hiType"/>
+        </xs:choice>
+    </xs:group>
+    <xs:group name="m.phrase.title.seq">
+        <xs:choice>
+            <xs:group ref="xces:m.token"/>
+            <xs:group ref="xces:m.common"/>
+            <xs:element name="foreign" type="xces:phrase.foreign.seq"/>
+            <xs:element name="mentioned" type="xces:phrase.mentioned.seq"/>
+            <xs:element name="distinct" type="xces:distinctType"/>
+        	<!-- 0.4 Changed hi to be of hiType, was phrase.hi.seq -->
+            <xs:element name="hi" type="xces:hiType"/>
+            <!-- 0.4 Add the emphasis element -->
+            <xs:element name="emph" type="xces:hiType"/>
+        </xs:choice>
+    </xs:group>
+    <!-- Sequences of "paragraph" level content -->
+    <xs:group name="m.par.seq">
+        <xs:annotation>
+            <xs:documentation xml:lang="en"> Elements that mark paragraph level content, that is,
+                elements that are children of &lt;div&gt; div elements. </xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:group ref="xces:m.inter"/>
+            <xs:element name="p" type="xces:pType"/>
+            <xs:element name="sp" type="xces:spType"/>
+        </xs:choice>
+    </xs:group>
+    <!-- Sequences of sub-paragrapgh level content -->
+    <xs:group name="m.subpar.seq">
+        <xs:annotation>
+            <xs:documentation xml:lang="en"> Elements that can appear as the children of paragraph
+                level elements. </xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:group ref="xces:m.phrase.seq"/>
+            <xs:element name="s" type="xces:sType"/>
+            <xs:element name="q" type="xces:qType"/>
+        </xs:choice>
+    </xs:group>
+</xs:schema>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui">
+<f:view contentType="text/html">
+    <h:head>
+        <title><h:outputText value="#{bundle.windowTitle}"/></title>
+        <h:outputStylesheet library="css" name="wikicorpus-ie.css"  /> 
+        <!-- manual incluide makes primefaces panelmenu behave correctly using c:for-each -->
+        <h:outputScript library="primefaces" name="jquery/jquery.js"/>	
+        <h:outputScript library="primefaces" name="jquery/jquery-plugins.js"/>
+        <h:outputStylesheet library="css" name="wikicorpus-web.css"  /> 
+        <f:loadBundle basename="#{UserBean.bundleName}" var="bundle"/>
+    </h:head>
+    <h:body>   
+      <div class="MainDiv">
+      <h:panelGrid width="98%" columns="1" border="0" cellpadding="0" cellspacing="0">
+           <h:form>
+           <p:toolbar style="width:100%;">
+             <p:toolbarGroup align="left">  
+               <p:commandButton value="Search/Browse" action="topnav_welcome" icon="ui-icon-search"/>
+               <p:separator />
+               <p:commandButton value="Javadocs" ajax="false" immediate="true" action="topnav_javadocs" icon="ui-icon-document"/>
+               <p:separator />
+               <p:commandButton value="About" ajax="false" immediate="true" action="topnav_about" icon="ui-icon-info"/>
+             </p:toolbarGroup>
+           </p:toolbar>
+           </h:form>
+           <h:panelGrid id="main_content_pnl" width="100%" columns="1" cellpadding="0" cellspacing="0" border="0"
+               columnClasses="AlignTop">
+               <ui:insert name="content">default content</ui:insert>
+           </h:panelGrid>
+      </h:panelGrid>
+      </div>
+    </h:body>
+</f:view>
+</html>

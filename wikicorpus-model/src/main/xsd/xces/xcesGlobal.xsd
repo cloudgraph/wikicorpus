@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+	The XML Corpus Encoding Standard
+	XCES Revision 0.4
+		
+	Common definitions.
+-->
+<xs:schema targetNamespace="http://www.xces.org/schema/2003"
+        xmlns:xces="http://www.xces.org/schema/2003" xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+        <xs:import namespace="http://www.w3.org/1999/xlink" schemaLocation="xcesLink.xsd"/>
+        <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+        <!-- The group a.global.base contains the attributes that do not have default values applies in later types. 
+               This allows the a.global.base attributes to be referenced in a restriction of the attributeGroup.
+        -->
+        <!-- The Global attributes -->
+        <xs:attributeGroup name="a.global">
+                <xs:annotation>
+                        <xs:documentation xml:lang="en">Global attributes. Most elements contain these attributes</xs:documentation>
+                </xs:annotation>
+                <xs:attribute name="id" type="xs:ID"/>
+                <xs:attribute name="n" type="xs:string"/>
+                <xs:attribute name="lang" type="xs:IDREF"/>
+                <xs:attribute ref="xml:lang"/>
+               <xs:attribute name="TEIform" type="xs:string"/>
+        </xs:attributeGroup>
+        <!-- Attributes for elements marking text. -->
+        <xs:attributeGroup name="a.text">
+                <xs:annotation>
+                        <xs:documentation xml:lang="en">Attributes for wsd (writing system description) and rend
+                                (rendering information).</xs:documentation>
+                </xs:annotation>
+                <xs:attribute name="rend" type="xs:string"/>
+                <xs:attribute name="wsd" type="xs:string"/>
+        </xs:attributeGroup>
+        <xs:attributeGroup name="a.declarable">
+                <xs:annotation>
+                        <xs:documentation xml:lang="en">Attributes added to the class of declarable elements.</xs:documentation>
+                </xs:annotation>
+                <xs:attribute name="default" default="n">
+                        <xs:simpleType>
+                                <xs:restriction base="xs:NMTOKEN">
+                                        <xs:enumeration value="y"/>
+                                        <xs:enumeration value="n"/>
+                                </xs:restriction>
+                        </xs:simpleType>
+                </xs:attribute>
+        </xs:attributeGroup> 
+        <!-- The TEIform attribute -->
+        <xs:attribute name="TEIform" type="xs:NMTOKEN">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    The TEIform element is used to map XCES elements and types onto TEI elements.  This is only required for
+                    a few elements (mostly in the header) that do not exist in the TEI or whose names have been changed.  For example.
+                    the TEI element &lt;teiHeader&gt; has been renamed &lt;cesHeader&gt; in the XCES and uses the TEIform attribute
+                    to declare a mapping between &lt;cesHeader&gt; in the XCES and &lt;teiHeader&gt; in the TEI.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <!-- Base types for class.global. We need to do this in two steps since class.base is a restriction and
+	class.global is an extension. 
+        -->
+        <!-- Use simplified versions of class.base -->
+        <xs:complexType name="class.base.simple" mixed="false"/>
+        <xs:complexType name="class.base.mixed" mixed="true"/>
+        <!-- 
+        <xs:complexType name="class.base.simple" mixed="false">
+                <xs:annotation>
+                        <xs:documentation xml:lang="en">>Base type for class.global. Restrict
+                                xs:anyType to an empty sequence. </xs:documentation>
+                </xs:annotation>
+                <xs:complexContent mixed="false">
+                        <xs:restriction base="xs:anyType">
+                                <xs:sequence>
+                                        <xs:any processContents="lax" minOccurs="0" maxOccurs="0"/>
+                                </xs:sequence>
+                        </xs:restriction>
+                </xs:complexContent>
+        </xs:complexType>
+        <xs:complexType name="class.base.mixed" mixed="true">
+                <xs:annotation>
+                        <xs:documentation xml:lang="en">>Base type for class.global.mixed. Restrict
+                                xs:anyType to an empty sequence, but allow mixed content. </xs:documentation>
+                </xs:annotation>
+                <xs:complexContent mixed="true">
+                        <xs:restriction base="xs:anyType">
+                                <xs:sequence>
+                                        <xs:any processContents="lax" minOccurs="0" maxOccurs="0"/>
+                                </xs:sequence>
+                        </xs:restriction>
+                </xs:complexContent>
+        </xs:complexType>
+        -->
+        <!-- Base types for all elements used to encode data.  -->
+        <!-- Extend class.base and add the appropriate attributes. -->
+        <xs:complexType name="class.global" mixed="false">
+                <xs:annotation>
+                        <xs:documentation xml:lang="en">>Base type for all element only types. Adds
+                                the global attributes to class.base.simple.</xs:documentation>
+                </xs:annotation>
+                <xs:complexContent mixed="false">
+                        <xs:extension base="xces:class.base.simple">
+                                <xs:attributeGroup ref="xces:a.global"/>
+                        </xs:extension>
+                </xs:complexContent>
+        </xs:complexType>
+        <xs:complexType name="class.global.mixed" mixed="true">
+                <xs:annotation>
+                        <xs:documentation xml:lang="en">>Base type for all mixed content elements
+                                Adds the global attributes to class.base.mixed.</xs:documentation>
+                </xs:annotation>
+                <xs:complexContent mixed="true">
+                        <xs:extension base="xces:class.base.mixed">
+                                <xs:attributeGroup ref="xces:a.global"/>
+                        </xs:extension>
+                </xs:complexContent>
+        </xs:complexType>
+        <!-- String type, text only.  Mixed content is allowed but class.global.mixed contains no elements.  -->
+        <xs:complexType name="class.string" mixed="true">
+                <xs:annotation>
+                        <xs:documentation xml:lang="en">A String (text only) type. Mixed content is allowed, but class.global.mixed
+                        does not contain any elements.</xs:documentation>
+                </xs:annotation>
+                <xs:complexContent mixed="true">
+                        <xs:extension base="xces:class.global.mixed"/>
+                </xs:complexContent>
+        </xs:complexType>
+        <!-- The class of declarable objects -->
+        <xs:complexType name="class.declarable">
+                <xs:annotation>
+                        <xs:documentation xml:lang="en">The class of declarable objects.</xs:documentation>
+                </xs:annotation>
+                <xs:complexContent>
+                        <xs:extension base="xces:class.global">
+                                <xs:attributeGroup ref="xces:a.declarable"/>
+                        </xs:extension>
+                </xs:complexContent>
+        </xs:complexType>
+        <!-- String class with the a.declarable attributes -->
+        <xs:complexType name="class.declarable.string" mixed="true">
+                <xs:complexContent mixed="true">
+                        <xs:extension base="xces:class.string">
+                                <xs:attributeGroup ref="xces:a.declarable"/>
+                        </xs:extension>
+                </xs:complexContent>
+        </xs:complexType>
+        <!-- Extend class.global.mixed to include the a.text attributes -->
+        <xs:complexType name="class.text" mixed="true">
+                <xs:annotation>
+                        <xs:documentation xml:lang="en">Base type for elements that are used to encode text.</xs:documentation>
+                </xs:annotation>
+                <xs:complexContent mixed="true">
+                        <xs:extension base="xces:class.global.mixed">
+                                <xs:attributeGroup ref="xces:a.text"/>
+                        </xs:extension>
+                </xs:complexContent>
+        </xs:complexType>
+        <!-- Extend class.global to include the a.text attributes -->
+        <xs:complexType name="class.text.elementOnly" mixed="false">
+                <xs:annotation>
+                        <xs:documentation xml:lang="en">Base type for element-only types that are used to encode text.</xs:documentation>
+                </xs:annotation>
+                <xs:complexContent mixed="false">
+                        <xs:extension base="xces:class.global">
+                                <xs:attributeGroup ref="xces:a.text"/>
+                        </xs:extension>
+                </xs:complexContent>
+        </xs:complexType>
+        <!-- String class with a.text attributes -->
+        <xs:complexType name="class.textString" mixed="true">
+                <xs:annotation>
+                        <xs:documentation xml:lang="en">Base type for string-only types used to encode text.</xs:documentation>
+                </xs:annotation>
+                <xs:complexContent mixed="true">
+                        <xs:extension base="xces:class.string">
+                                <xs:attributeGroup ref="xces:a.text"/>
+                        </xs:extension>
+                </xs:complexContent>
+        </xs:complexType>
+        <!-- Minimum attributes required to declare a simple link -->
+        <!-- The xlink:href attribute has changed from required to optional in v1.1 -->
+        <xs:attributeGroup name="simpleLinkAtts">
+                <xs:annotation>
+                        <xs:documentation xml:lang="en">Attributes required to declare a simple link.</xs:documentation>
+                </xs:annotation>
+                <xs:attribute ref="xlink:type" fixed="simple"/>
+                <xs:attribute ref="xlink:href" use="optional"/>
+        </xs:attributeGroup>
+        <!-- Attributes to declare a locator -->
+        <xs:attributeGroup name="locatorAtts">
+                <xs:attribute ref="xlink:type" fixed="locator"/>
+                <xs:attribute ref="xlink:href" use="required"/>
+                <xs:attribute ref="xlink:role"/>
+                <xs:attribute ref="xlink:title"/>
+                <xs:attribute ref="xlink:label"/>
+                <xs:attribute ref="xlink:from"/>
+                <xs:attribute ref="xlink:to"/>
+        </xs:attributeGroup>
+        <!-- A link to an external file.  -->
+        <xs:complexType name="linkType">
+                <xs:annotation>
+                        <xs:documentation xml:lang="en">Element type used to link an external files to a document.</xs:documentation>
+                </xs:annotation>
+                <xs:complexContent>
+                    <xs:extension base="xces:class.global">
+                        <xs:attributeGroup ref="xces:simpleLinkAtts"/>
+                    </xs:extension>
+                </xs:complexContent>
+        </xs:complexType>
+</xs:schema>

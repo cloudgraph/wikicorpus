@@ -1,0 +1,90 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.cloudgraph</groupId>
+  <artifactId>wikicorpus</artifactId>
+  <version>0.5.1</version>
+  <packaging>pom</packaging>
+  <name>wikicorpus</name>
+  <description>CloudGraph Corpora Annotation Example</description>  
+  <url>http://wikicorpus.cloudgraph.org</url>
+  <licenses>   
+  </licenses>  
+  <scm>        
+      <url>https://github.com/cloudgraph/wikicorpus</url>
+      <connection></connection>
+  </scm>       
+  <developers> 
+      <developer>
+          <id>scinnamond</id>
+          <name>Scott Cinnamond</name>
+          <email>scott.cinnamond@cloudgraph.org</email>
+      </developer>
+  </developers>  
+    <modules>
+       <module>wikicorpus-common</module>
+       <module>wikicorpus-model</module>
+       <module>wikicorpus-service</module>
+       <module>wikicorpus-mapreduce</module>
+       <module>wikicorpus-export</module>
+       <module>wikicorpus-nlp</module>
+       <module>wikicorpus-index</module>
+       <module>wikicorpus-web</module>
+    </modules>
+               
+  <properties> 
+          <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+          <plasma.version>1.1.9</plasma.version>
+          <cloudgraph.version>0.5.9</cloudgraph.version>
+  </properties>
+               
+  <repositories>
+      <repository>
+          <id>lib</id>
+          <name>lib</name>
+          <releases>
+                  <enabled>true</enabled>
+                  <checksumPolicy>ignore</checksumPolicy>
+          </releases>
+          <snapshots>
+                  <enabled>false</enabled>
+          </snapshots>
+          <url>file://${project.basedir}/lib</url>
+      </repository>
+	  <repository>
+		   <id>maven2-repository.dev.java.net</id>
+		   <name>Java.net Maven 2 Repository</name>
+		   <url>http://download.java.net/maven/2</url>
+	  </repository>
+  </repositories>
+  <pluginRepositories>                                  
+		 <pluginRepository>                                
+		 	<id>maven2-repository.dev.java.net</id>       
+		 	<name>Java.net Maven 2 Repository</name>      
+		 	<url>http://download.java.net/maven/2</url>   
+		 </pluginRepository>                               
+  </pluginRepositories>                                 
+               
+  <dependencies>     
+	<dependency>
+		<groupId>junit</groupId>
+		<artifactId>junit</artifactId>
+		<version>3.8.1</version>
+	</dependency>
+	<dependency>
+		<groupId>log4j</groupId>
+		<artifactId>log4j</artifactId>
+		<version>1.2.8</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-logging</groupId>
+		<artifactId>commons-logging</artifactId>
+		<version>1.1.1</version>
+	</dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      </plugins>
+   </build>
+</project>

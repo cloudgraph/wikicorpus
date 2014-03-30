@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+                The XML Corpus Encoding Standard
+                XCES Revision 0.4
+                
+                These are the elements that were renamed in the rev 0.3 schema for the ANC.  The second release
+                of the ANC will be brought in line with the XCES DTDs, at which time these definitions can be removed.
+-->
+
+<xs:schema targetNamespace="http://www.xces.org/schema/2003"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xces="http://www.xces.org/schema/2003"
+        elementFormDefault="qualified" version="1.0.4">
+        <xs:annotation>
+                <xs:documentation xml:lang="en">This schema defines model groups containing the elements that were renamed
+                in the revision 0.3 schemas.  The revision 0.4 schemas use these model groups to allow documents that use the
+                revision 0.3 name or the (correct) 0.4 name to validate.</xs:documentation>
+        </xs:annotation>
+        <xs:group name="title.group">
+                <xs:choice>
+                        <xs:element name="title" type="xces:class.string" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:element name="h.title" type="xces:tei.titleString" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:choice>
+        </xs:group>
+        <xs:group name="author.group">
+                <xs:choice>
+                        <xs:element name="author" type="xces:class.string" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:element name="h.author" type="xces:tei.authorString" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:choice>
+        </xs:group>
+        <xs:group name="item.group">
+                <xs:choice>
+                        <xs:element name="item" type="xces:class.string" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:element name="h.item" type="xces:tei.itemString" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:choice>
+        </xs:group>
+</xs:schema>

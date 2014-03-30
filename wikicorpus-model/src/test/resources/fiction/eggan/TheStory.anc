@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cesHeader creator="KBS" date.created="20050222" version="1.0.4" xmlns="http://www.xces.org/schema/2003">
+    <fileDesc>
+        <titleStmt>
+            <title>The Story Continues</title>
+            <author>Ferd Eggan</author>
+        </titleStmt>
+        <sourceDesc>
+            <biblStruct>
+                <monogr>
+                    <imprint>
+                        <publisher>Ferd Eggan</publisher>
+                        <pubDate>2005</pubDate>
+                        <eAddress type="url">http://www.ferdeggan.com</eAddress>
+                    </imprint>
+                </monogr>
+            </biblStruct>
+        </sourceDesc>
+    </fileDesc>
+    <profileDesc>
+        <textClass>
+            <domain>Fiction</domain>
+            <subdomain>General fiction</subdomain>
+            <subject>Misc.</subject>
+            <audience>adult</audience>
+            <medium>online novel</medium>
+        </textClass>
+        <annotations>
+            <annotation ann.loc="TheStory.txt" type="content">Text content</annotation>
+            <annotation ann.loc="TheStory-logical.xml" type="logical">Logical structure</annotation>
+            <annotation ann.loc="TheStory-s.xml" type="s">Sentence boundaries</annotation>
+            <annotation ann.loc="TheStory-hepple.xml" type="hepple">Hepple part of speech tags</annotation>
+            <annotation ann.loc="TheStory-np.xml" type="np">Noun chunks</annotation>
+            <annotation ann.loc="TheStory-vp.xml" type="vp">Verb chunks</annotation>
+        </annotations>
+    </profileDesc>
+</cesHeader>

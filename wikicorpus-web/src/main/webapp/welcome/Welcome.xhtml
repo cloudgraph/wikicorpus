@@ -1,0 +1,135 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<ui:composition template="/templates/main-layout.xhtml"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<ui:define name="content">
+    <h:form id="wlcm_frm">
+    <style>
+        td {
+            white-space:normal !important;
+        }
+    </style>
+    <p:growl id="growl" showDetail="false" /> 
+    <p:panel style="width:100%;">
+        <h:panelGrid width="40%" columnClasses="AlignLeft,AlignLeft,AlignLeft" columns="3" cellpadding="4" cellspacing="4" border="0">
+
+         <p:autoComplete id="word_ac" minQueryLength="3" maxResults="8" 
+             size="30" forceSelection="false" 
+             value="#{DependencyBean.word}" effect="fade"  
+             completeMethod="#{ReferenceDataCache.words}">
+             <p:ajax event="itemSelect" listener="#{DependencyBean.handleWordChange}"
+                                 update=":nav_frm "/>         
+         </p:autoComplete>      
+         <p:commandButton value="Find Dependencies"     
+              update=":nav_frm" icon="ui-icon-search" />  
+         <p:ajaxStatus style="width:16px;">    
+		    <f:facet name="prestart">
+            <h:graphicImage width="16" height="16" 
+                url="/images/ajax-loader3.gif"/>
+		    </f:facet>
+		    <f:facet name="error"> <h:outputText value="Error" />
+		    </f:facet>
+		    <f:facet name="success"> <h:outputText value="" />
+		    </f:facet>
+		    <f:facet name="default"> <h:outputText value="" />
+		    </f:facet>
+		    <f:facet name="start">
+		        <h:graphicImage width="16" height="16" 
+                url="/images/ajax-loader3.gif"/>
+		        
+		    </f:facet>
+		    <f:facet name="complete"> <h:outputText value="" />
+		    </f:facet>      
+       </p:ajaxStatus>
+       </h:panelGrid>
+       <p:spacer width="1" height="10"/>
+    </p:panel>
+    </h:form>  
+   
+    <h:form id="nav_frm">
+    <h:panelGrid columns="2" rowClasses="AlignTop,AlignTop">
+    <p:panel header="Search" toggleable="true" toggleSpeed="500" toggleOrientation="horizontal" 
+        style="width:450px;"
+        rendered="#{DependencyBean.hasWord}">
+    <p:outputPanel id="deps_op">  
+    <h:panelGrid columns="2">   
+    <p:commandButton value="Back" immediate="true" icon="ui-icon-seek-prev"
+        disabled="#{DependencyBean.level == 0}"
+        actionListener="#{DependencyBean.back}" 
+        update=":nav_frm:deps_op"/>
+        
+         <p:ajaxStatus style="width:16px;">    
+            <f:facet name="prestart">
+            <h:graphicImage width="16" height="16" 
+                url="/images/ajax-loader3.gif"/>
+            </f:facet>
+            <f:facet name="error"> <h:outputText value="Error" />
+            </f:facet>
+            <f:facet name="success"> <h:outputText value="" />
+            </f:facet>
+            <f:facet name="default"> <h:outputText value="" />
+            </f:facet>
+            <f:facet name="start">
+                <h:graphicImage width="16" height="16" 
+                url="/images/ajax-loader3.gif"/>
+                
+            </f:facet>
+            <f:facet name="complete"> <h:outputText value="" />
+            </f:facet>      
+       </p:ajaxStatus>
+   </h:panelGrid>     
+     <p:barChart id="totals_chart" title="#{DependencyBean.hasSelectedRoot ? DependencyBean.selectedRoot.displayType : ''}  (#{DependencyBean.word})" animate="false"
+       value="#{DependencyBean.dependencyCategoryModel}" legendPosition="ne"  
+       orientation="horizontal" min="0" max="#{DependencyBean.maxAggregate + (DependencyBean.maxAggregate * 0.1)}"
+       barMargin="6" stacked="false"
+       seriesColors="#{DependencyBean.seriesColors}"
+       style="width:430px;height:#{DependencyBean.dependencyCount * DependencyBean.seriesCount * 30 }px"> 
+       <p:ajax event="itemSelect" listener="#{DependencyBean.handleDependencySelect}" update=":nav_frm:deps_op :nav_frm:sent_op" /> 
+    </p:barChart>
+    
+    </p:outputPanel>
+    </p:panel>  
+    
+    <p:panel rendered="#{DependencyBean.hasSelectedRoot}" style="width:100%;">
+    <p:outputPanel id="sent_op">
+    <p:dataTable id="sntnc_dtbl" var="row"   
+      lazy="true" style="width:100%;"
+      value="#{SentenceQueueBean.model}"
+      rows="30"
+      paginator="true" effect="true"
+      paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+      rowsPerPageTemplate="30,60,90">                                                                        
+       <p:column sortBy="#{row.pageTitle}" styleClass="AlignLeft">                                                                                                                               
+           <f:facet name="header">
+              <h:outputText value="Page" />
+           </f:facet>  
+           <h:outputText value="#{row.pageTitle}"/>                                                                                         
+       </p:column>   
+       <p:column sortBy="#{row.word}" styleClass="AlignLeft">                                                                                                                               
+           <f:facet name="header">
+              <h:outputText value="Word" />
+           </f:facet>  
+           <h:outputText value="#{row.word}"/>                                                                                         
+       </p:column>   
+       <p:column styleClass="AlignLeft">                                                                                                                               
+           <f:facet name="header">
+              <h:outputText value="Sentence" />
+           </f:facet>  
+           <h:outputText value="#{row.textWithMarkup}" escape="false"/>                                                                                         
+       </p:column>   
+    </p:dataTable>                                                                                                                          
+    </p:outputPanel>
+    
+    </p:panel>
+    </h:panelGrid>
+    
+    
+    </h:form>                           
+ </ui:define>
+</ui:composition>
