@@ -19,10 +19,11 @@
     <p:panel style="width:100%;">
         <h:panelGrid width="40%" columnClasses="AlignLeft,AlignLeft,AlignLeft" columns="3" cellpadding="4" cellspacing="4" border="0">
 
-         <p:autoComplete id="word_ac" minQueryLength="3" maxResults="8" 
-             size="30" forceSelection="false" 
+         <p:autoComplete id="word_ac" minQueryLength="3" maxResults="40" 
+             size="25" forceSelection="false" 
              value="#{DependencyBean.word}" effect="fade"  
-             completeMethod="#{ReferenceDataCache.words}">
+             completeMethod="#{ReferenceDataCache.words}"
+             scrollHeight="180" panelStyle="width:140px">
              <p:ajax event="itemSelect" listener="#{DependencyBean.handleWordChange}"
                                  update=":nav_frm "/>         
          </p:autoComplete>      
@@ -53,16 +54,16 @@
     </h:form>  
    
     <h:form id="nav_frm">
-    <h:panelGrid columns="2" rowClasses="AlignTop,AlignTop">
-    <p:panel header="Search" toggleable="true" toggleSpeed="500" toggleOrientation="horizontal" 
-        style="width:450px;"
+    <h:panelGrid columns="2" border="0" rowClasses="AlignTop,AlignTop" columnClasses="AlignTop,AlignTop">
+    <p:panel header="Dependencies" toggleable="true" toggleSpeed="500" toggleOrientation="horizontal" 
+        style="width:450px;" 
         rendered="#{DependencyBean.hasWord}">
     <p:outputPanel id="deps_op">  
     <h:panelGrid columns="2">   
     <p:commandButton value="Back" immediate="true" icon="ui-icon-seek-prev"
         disabled="#{DependencyBean.level == 0}"
         actionListener="#{DependencyBean.back}" 
-        update=":nav_frm:deps_op"/>
+        update=":nav_frm:deps_op :nav_frm:sent_op"/>
         
          <p:ajaxStatus style="width:16px;">    
             <f:facet name="prestart">
@@ -83,8 +84,8 @@
             <f:facet name="complete"> <h:outputText value="" />
             </f:facet>      
        </p:ajaxStatus>
-   </h:panelGrid>     
-     <p:barChart id="totals_chart" title="#{DependencyBean.hasSelectedRoot ? DependencyBean.selectedRoot.displayType : ''}  (#{DependencyBean.word})" animate="false"
+    </h:panelGrid>     
+    <p:barChart id="totals_chart" title="#{DependencyBean.hasSelectedRoot ? DependencyBean.selectedRoot.displayType : ''}  (#{DependencyBean.word})" animate="false"
        value="#{DependencyBean.dependencyCategoryModel}" legendPosition="ne"  
        orientation="horizontal" min="0" max="#{DependencyBean.maxAggregate + (DependencyBean.maxAggregate * 0.1)}"
        barMargin="6" stacked="false"
@@ -96,18 +97,18 @@
     </p:outputPanel>
     </p:panel>  
     
-    <p:panel rendered="#{DependencyBean.hasSelectedRoot}" style="width:100%;">
-    <p:outputPanel id="sent_op">
+    <p:outputPanel id="sent_op" styleClass="AlignTop">
+    <p:panel style="width:100%;" rendered="#{DependencyBean.hasWord &amp;&amp; DependencyBean.hasSelectedRoot}">
     <p:dataTable id="sntnc_dtbl" var="row"   
       lazy="true" style="width:100%;"
       value="#{SentenceQueueBean.model}"
-      rows="30"
+      rows="10"
       paginator="true" effect="true"
       paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
-      rowsPerPageTemplate="30,60,90">                                                                        
+      rowsPerPageTemplate="10,20,30">                                                                        
        <p:column sortBy="#{row.pageTitle}" styleClass="AlignLeft">                                                                                                                               
            <f:facet name="header">
-              <h:outputText value="Page" />
+              <h:outputText value="Wiki Page" />
            </f:facet>  
            <h:outputText value="#{row.pageTitle}"/>                                                                                         
        </p:column>   
@@ -117,6 +118,12 @@
            </f:facet>  
            <h:outputText value="#{row.word}"/>                                                                                         
        </p:column>   
+       <p:column sortBy="#{row.dependencyTypeDisplayName}" styleClass="AlignLeft">                                                                                                                               
+           <f:facet name="header">
+              <h:outputText value="Type" />
+           </f:facet>  
+           <h:outputText value="#{row.dependencyTypeDisplayName}"/>                                                                                         
+       </p:column>   
        <p:column styleClass="AlignLeft">                                                                                                                               
            <f:facet name="header">
               <h:outputText value="Sentence" />
@@ -124,9 +131,9 @@
            <h:outputText value="#{row.textWithMarkup}" escape="false"/>                                                                                         
        </p:column>   
     </p:dataTable>                                                                                                                          
-    </p:outputPanel>
     
     </p:panel>
+    </p:outputPanel>
     </h:panelGrid>
     
     

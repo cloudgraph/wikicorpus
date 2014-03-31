@@ -9,6 +9,9 @@
         <dependent-module archiveName="wikicorpus-service-0.5.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/wikicorpus-service/wikicorpus-service">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="cloudgraph-hbase-0.5.9.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/cloudgraph-hbase/cloudgraph-hbase">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <dependent-module archiveName="wikicorpus-model-0.5.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/wikicorpus-model/wikicorpus-model">
             <dependency-type>uses</dependency-type>
         </dependent-module>

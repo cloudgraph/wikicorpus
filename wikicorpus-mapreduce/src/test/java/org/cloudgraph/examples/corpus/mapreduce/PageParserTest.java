@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.CommonTest;
-import org.cloudgraph.examples.corpus.mapreduce.PageCounter;
+import org.cloudgraph.examples.wikicorpus.mapreduce.PageCounter;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.query.Query;
 import org.plasma.sdo.access.client.DataAccessClient;
