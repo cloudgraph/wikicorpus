@@ -9,27 +9,27 @@
      xmlns:p="http://primefaces.org/ui"
      xmlns:c="http://java.sun.com/jsp/jstl/core">
 <ui:define name="content">
-    <h:form id="wlcm_frm">
-    <style>
-        td {
-            white-space:normal !important;
-        }
-    </style>
-    <p:growl id="growl" showDetail="false" /> 
+    <h:panelGrid width="100%" columns="1" cellpadding="6" cellspacing="6" border="0">
+    
+    
     <p:panel style="width:100%;">
-        <h:panelGrid width="40%" columnClasses="AlignLeft,AlignLeft,AlignLeft" columns="3" cellpadding="4" cellspacing="4" border="0">
-
-         <p:autoComplete id="word_ac" minQueryLength="3" maxResults="40" 
-             size="25" forceSelection="false" 
-             value="#{DependencyBean.word}" effect="fade"  
-             completeMethod="#{ReferenceDataCache.words}"
-             scrollHeight="180" panelStyle="width:140px">
-             <p:ajax event="itemSelect" listener="#{DependencyBean.handleWordChange}"
-                                 update=":nav_frm "/>         
-         </p:autoComplete>      
-         <p:commandButton value="Find Dependencies"     
-              update=":nav_frm" icon="ui-icon-search" />  
-         <p:ajaxStatus style="width:16px;">    
+    <h:form id="wlcm_frm">
+    <p:growl id="growl" showDetail="false" /> 
+        <h:panelGrid width="100%" columnClasses="AlignLeft,AlignLeft,AlignLeft" columns="5" cellpadding="6" cellspacing="6" border="0">
+         <h:panelGrid columns="2">
+	         <p:autoComplete id="word_ac" minQueryLength="3" maxResults="40" 
+	             size="25" forceSelection="false" 
+	             value="#{DependencyBean.word}" effect="fade"  
+	             completeMethod="#{ReferenceDataCache.words}"
+	             scrollHeight="180" panelStyle="width:140px">
+	             <p:ajax event="itemSelect" listener="#{DependencyBean.handleWordChange}"
+	                                 update=":nav_frm :wlcm_frm:wlcm_tags"/>         
+	         </p:autoComplete>      
+	         <p:commandButton value="Find"     
+	              update=":nav_frm :wlcm_frm:wlcm_tags" icon="ui-icon-search" /> 
+         </h:panelGrid> 
+         <p:ajaxStatus rendered="#{!DependencyBean.hasWord}"
+             style="width:16px;">    
 		    <f:facet name="prestart">
             <h:graphicImage width="16" height="16" 
                 url="/images/ajax-loader3.gif"/>
@@ -48,65 +48,120 @@
 		    <f:facet name="complete"> <h:outputText value="" />
 		    </f:facet>      
        </p:ajaxStatus>
+       <p:fieldset rendered="true" legend="Popular Searches" styleClass="AlignLeft" >
+        <p:tagCloud id="wlcm_tags" model="#{ReferenceDataCache.wordTagCloudModel}" style="width:95%;">  
+            <p:ajax event="select" listener="#{DependencyBean.handleTagCloudWordSelect}" update=":nav_frm :wlcm_frm:word_ac :wlcm_frm:wlcm_tags"/>  
+        </p:tagCloud>         
+       </p:fieldset>
        </h:panelGrid>
        <p:spacer width="1" height="10"/>
-    </p:panel>
     </h:form>  
+ </p:panel>
    
+ <p:panel>  
     <h:form id="nav_frm">
-    <h:panelGrid columns="2" border="0" rowClasses="AlignTop,AlignTop" columnClasses="AlignTop,AlignTop">
-    <p:panel header="Dependencies" toggleable="true" toggleSpeed="500" toggleOrientation="horizontal" 
-        style="width:450px;" 
+    <h:panelGrid rendered="#{DependencyBean.hasWord}" columns="1" rowClasses="AlignLeft" columnClasses="AlignLeft" border="0" cellpadding="0" cellspacing="0">  
+        <p:panel id="nav_hdr_pnl">
+            <h:panelGrid width="50%" border="0" columns="3" columnClasses="AlignLeft,AlignLeft,AlignLeft,AlignLeft" cellpadding="4" cellspacing="4"> 
+                <h:panelGroup layout="block" style="padding: 8px;">      
+                <h:graphicImage width="16" height="16" 
+                        url="/images/hexagon.png"/>      
+                <h:outputText value="#{DependencyBean.displayWord}" style="word-wrap: no; font-size:28px; font-weight: bold:"/>
+                </h:panelGroup>
+               <p:ajaxStatus style="width:16px;">    
+                    <f:facet name="prestart">
+                    <h:graphicImage width="16" height="16" 
+                        url="/images/ajax-loader3.gif"/>
+                    </f:facet>
+                    <f:facet name="error"> <h:outputText value="Error" />
+                    </f:facet>
+                    <f:facet name="success"> <h:outputText value="" />
+                    </f:facet>
+                    <f:facet name="default"> <h:outputText value="" />
+                    </f:facet>
+                    <f:facet name="start">
+                        <h:graphicImage width="16" height="16" 
+                            url="/images/ajax-loader3.gif"/>                
+                    </f:facet>
+                    <f:facet name="complete"> <h:outputText value="" />
+                    </f:facet>      
+                </p:ajaxStatus>
+                <h:panelGroup layout="block" style="padding: 0px;">
+                 
+                  <p:commandButton rendered="#{DependencyBean.hasSelectedRoot}" icon="ui-icon-battery-3" 
+                    value="#{DependencyBean.selectedRootDisplayName}" style="word-wrap: no !important;"/>
+                </h:panelGroup>
+            </h:panelGrid>
+        </p:panel>
+    <p:spacer height="20px" width="1px"/>
+    <h:panelGrid columns="2" border="0" cellpadding="0" cellspacing="0"  rowClasses="AlignTop,AlignTop" columnClasses="AlignTop,AlignTop" >
+    <p:panel header="Dependency Browser" toggleable="true" toggleSpeed="500" toggleOrientation="horizontal" 
+        style="width:480px;" styleClass="PanelNoPadding"
         rendered="#{DependencyBean.hasWord}">
-    <p:outputPanel id="deps_op">  
-    <h:panelGrid columns="2">   
+    <p:outputPanel id="deps_op">
+    
+    <p:tabView id="deps_tv" activeIndex="#{DependencyBean.tabIndex}">
+    <p:ajax event="tabChange" listener="#{DependencyBean.onTabChange}"/>  
+    <p:tab title="Chart" styleClass="PanelNoPadding">  
+    <h:panelGrid columns="3">   
     <p:commandButton value="Back" immediate="true" icon="ui-icon-seek-prev"
         disabled="#{DependencyBean.level == 0}"
         actionListener="#{DependencyBean.back}" 
-        update=":nav_frm:deps_op :nav_frm:sent_op"/>
+        update=":nav_frm"/>
+       <p:selectOneRadio id="deps_log" value="#{DependencyBean.logarithmicDisplay}" immediate="true"
+           title="whether a logrithmic or actual scale is displayed - a logrithmic scale helps normalize smaller values making them easier to identify visually">
+            <f:selectItem itemLabel="Logrithmic" itemValue="Y" />  
+            <f:selectItem itemLabel="Actual" itemValue="N" />
+            <p:ajax update=":nav_frm:deps_op"/>  
+       </p:selectOneRadio>
+       <p:tooltip for="deps_log" showEvent="focus" hideEvent="blur" />
         
-         <p:ajaxStatus style="width:16px;">    
-            <f:facet name="prestart">
-            <h:graphicImage width="16" height="16" 
-                url="/images/ajax-loader3.gif"/>
-            </f:facet>
-            <f:facet name="error"> <h:outputText value="Error" />
-            </f:facet>
-            <f:facet name="success"> <h:outputText value="" />
-            </f:facet>
-            <f:facet name="default"> <h:outputText value="" />
-            </f:facet>
-            <f:facet name="start">
-                <h:graphicImage width="16" height="16" 
-                url="/images/ajax-loader3.gif"/>
-                
-            </f:facet>
-            <f:facet name="complete"> <h:outputText value="" />
-            </f:facet>      
-       </p:ajaxStatus>
     </h:panelGrid>     
-    <p:barChart id="totals_chart" title="#{DependencyBean.hasSelectedRoot ? DependencyBean.selectedRoot.displayType : ''}  (#{DependencyBean.word})" animate="false"
+    <p:barChart id="totals_chart" animate="false"
        value="#{DependencyBean.dependencyCategoryModel}" legendPosition="ne"  
-       orientation="horizontal" min="0" max="#{DependencyBean.maxAggregate + (DependencyBean.maxAggregate * 0.1)}"
+       orientation="horizontal" 
        barMargin="6" stacked="false"
        seriesColors="#{DependencyBean.seriesColors}"
-       style="width:430px;height:#{DependencyBean.dependencyCount * DependencyBean.seriesCount * 30 }px"> 
-       <p:ajax event="itemSelect" listener="#{DependencyBean.handleDependencySelect}" update=":nav_frm:deps_op :nav_frm:sent_op" /> 
+       style="width:430px;height:#{30 + (DependencyBean.dependencyCount * DependencyBean.seriesCount * 30)}px"> 
+       <p:ajax event="itemSelect" listener="#{DependencyBean.handleDependencySelect}" update=":nav_frm" /> 
     </p:barChart>
+    </p:tab>
+    <p:tab title="Menu" styleClass="PanelNoPadding">
+       <p:selectOneRadio value="#{DependencyBean.displayGovernors}" immediate="true">
+            <f:selectItem itemLabel="Governors" itemValue="Y" />  
+            <f:selectItem itemLabel="Dependents" itemValue="N" />
+            <p:ajax update=":nav_frm:deps_tv:deps_pm :nav_frm:sent_op"/>  
+       </p:selectOneRadio>
+    
+    <p:panelMenu id="deps_pm">
+    <c:forEach var="rootDep" items="#{DependencyBean.dependencies}">
+    <p:submenu label="#{rootDep.displayType} (#{DependencyBean.displayGovernors == 'Y' ? rootDep.governorCountDeep : rootDep.dependentCountDeep})"> 
+    <c:forEach var="childDep" items="#{rootDep.dependencies}">
+        <p:menuitem value="#{childDep.displayType != '' ? childDep.displayType : 'unknown'}  (#{DependencyBean.displayGovernors  == 'Y' ? childDep.governorCountDeep : childDep.dependentCountDeep})" 
+                icon="ui-icon-radio-on"
+                actionListener="#{DependencyBean.setSelectedRoot(childDep)}"
+                update=":nav_frm:sent_op :nav_frm:nav_hdr_pnl"> 
+            </p:menuitem>    
+        </c:forEach>
+    </p:submenu>
+    </c:forEach>  
+    </p:panelMenu>
+    </p:tab>
+    </p:tabView>
     
     </p:outputPanel>
     </p:panel>  
     
-    <p:outputPanel id="sent_op" styleClass="AlignTop">
-    <p:panel style="width:100%;" rendered="#{DependencyBean.hasWord &amp;&amp; DependencyBean.hasSelectedRoot}">
+    <p:outputPanel id="sent_op">
     <p:dataTable id="sntnc_dtbl" var="row"   
       lazy="true" style="width:100%;"
       value="#{SentenceQueueBean.model}"
       rows="10"
       paginator="true" effect="true"
-      paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+      paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink} {RowsPerPageDropdown}"  
       rowsPerPageTemplate="10,20,30">                                                                        
-       <p:column sortBy="#{row.pageTitle}" styleClass="AlignLeft">                                                                                                                               
+       <p:column sortBy="#{row.pageTitle}" styleClass="AlignLeft"
+           title="The Wikipedia page which contains the sentence">                                                                                                                               
            <f:facet name="header">
               <h:outputText value="Wiki Page" />
            </f:facet>  
@@ -118,11 +173,23 @@
            </f:facet>  
            <h:outputText value="#{row.word}"/>                                                                                         
        </p:column>   
+       <p:column sortBy="#{row.POS}" styleClass="AlignLeft">                                                                                                                               
+           <f:facet name="header">
+              <h:outputText value="POS" />
+           </f:facet>  
+           <h:outputText value="#{row.POS}"/>                                                                                         
+       </p:column>   
        <p:column sortBy="#{row.dependencyTypeDisplayName}" styleClass="AlignLeft">                                                                                                                               
            <f:facet name="header">
-              <h:outputText value="Type" />
+              <h:outputText value="Dependency" />
            </f:facet>  
            <h:outputText value="#{row.dependencyTypeDisplayName}"/>                                                                                         
+       </p:column>   
+       <p:column styleClass="AlignLeft">                                                                                                                               
+           <f:facet name="header">
+              <h:outputText value="Token" />
+           </f:facet>  
+           <h:outputText value="#{row.isGovernor ? 'Governor' : 'Dependent'}"/>                                                                                         
        </p:column>   
        <p:column styleClass="AlignLeft">                                                                                                                               
            <f:facet name="header">
@@ -132,11 +199,13 @@
        </p:column>   
     </p:dataTable>                                                                                                                          
     
-    </p:panel>
     </p:outputPanel>
     </h:panelGrid>
-    
-    
-    </h:form>                           
+    </h:panelGrid>
+    </h:form> 
+ </p:panel>  
+ 
+ </h:panelGrid>
+                        
  </ui:define>
 </ui:composition>

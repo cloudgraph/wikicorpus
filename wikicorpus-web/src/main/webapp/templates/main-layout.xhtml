@@ -8,10 +8,15 @@
 <f:view contentType="text/html">
     <h:head>
         <title><h:outputText value="#{bundle.windowTitle}"/></title>
-        <h:outputStylesheet library="css" name="wikicorpus-ie.css"  /> 
-        <!-- manual incluide makes primefaces panelmenu behave correctly using c:for-each -->
-        <h:outputScript library="primefaces" name="jquery/jquery.js"/>	
-        <h:outputScript library="primefaces" name="jquery/jquery-plugins.js"/>
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"></meta>
+        <meta http-equiv="Pragma" content="no-cache"></meta>
+        <meta http-equiv="Expires" content="0"></meta>
+        
+        <style type="text/css">
+          .ui-widget, .ui-widget .ui-widget {
+              font-size: 100% !important;
+          }        
+        </style>
         <h:outputStylesheet library="css" name="wikicorpus-web.css"  /> 
         <f:loadBundle basename="#{UserBean.bundleName}" var="bundle"/>
     </h:head>
@@ -20,7 +25,7 @@
            <h:form>
            <p:toolbar style="width:100%;">
              <p:toolbarGroup align="left">  
-               <p:commandButton value="Search/Browse" action="topnav_welcome" icon="ui-icon-search"/>
+               <p:commandButton value="Word Dependencies" action="topnav_welcome" icon="ui-icon-search"/>
                <p:separator />
                <p:commandButton value="Javadocs" ajax="false" immediate="true" action="topnav_javadocs" icon="ui-icon-document"/>
                <p:separator />

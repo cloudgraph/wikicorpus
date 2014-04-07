@@ -2,6 +2,8 @@ package org.cloudgraph.examples.wikicorpus.web.model.cache;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,9 @@ import org.plasma.sdo.access.client.HBasePojoDataAccessClient;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.primefaces.model.chart.CartesianChartModel;
 import org.primefaces.model.chart.ChartSeries;
+import org.primefaces.model.tagcloud.DefaultTagCloudItem;
+import org.primefaces.model.tagcloud.DefaultTagCloudModel;
+import org.primefaces.model.tagcloud.TagCloudModel;
 
 import commonj.sdo.DataGraph;
 
@@ -35,8 +40,7 @@ public class ReferenceDataCache
     private static Log log = LogFactory.getLog(ReferenceDataCache.class);
 	private static final long serialVersionUID = 1L;
     protected SDODataAccessClient service;
-	private Map<String, ParsedWordAggregate> wordMap = new WeakHashMap<String, ParsedWordAggregate>();
-	private static int[] ranges = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000, 5000};
+	private Map<String, ParsedWordAdapter> wordMap = new WeakHashMap<String, ParsedWordAdapter>();
   
 
     /**
@@ -63,130 +67,54 @@ public class ReferenceDataCache
 		for (DataGraph graph : graphs) {
 			ParsedWordAggregate word = (ParsedWordAggregate)graph.getRootObject();
 	    	result.add(word.getLemma());
-	    	wordMap.put(word.getLemma(), word);
+	    	
+	    	ParsedWordAdapter existing = this.wordMap.get(word.getLemma());
+	    	if (existing == null) {
+	    		this.wordMap.put(word.getLemma(), new ParsedWordAdapter(word));
+	    	}
+	    	else
+	    		existing.setHitCount(existing.getHitCount() + 1);
 		}		
 		
 		return result;
 	}
 	
-	public ParsedWordAggregate getWord(String lemma) {
-		return this.wordMap.get(lemma);
+	public ParsedWordAdapter getWord(String lemma) {
+		ParsedWordAdapter existing = this.wordMap.get(lemma);
+		if (existing != null)
+			existing.setHitCount(existing.getHitCount() + 1);
+		return existing;
 	}
 	
-	Map<Integer, List<Long>> hbaseAssemblyTime = new HashMap<Integer, List<Long>>();
-	public synchronized void addHBaseAssemblyTime(long nodeCount, long milliseconds) {
-		for (int r : ranges) {
-			if (nodeCount < r) {
-				List<Long> values = hbaseAssemblyTime.get(r);
-				if (values == null) {
-					Integer range = new Integer(r);
-					values = new ArrayList<Long>();
-					hbaseAssemblyTime.put(range, values);
-				}
-				values.add(milliseconds);
-				break;
-			}
-		}
+	public void incrementWord(String lemma) {
+		ParsedWordAdapter existing = this.wordMap.get(lemma);
+		if (existing != null)
+			existing.setHitCount(existing.getHitCount() + 1);
 	}
 	
-	Map<Integer, List<Long>> rdbmsAssemblyTime = new HashMap<Integer, List<Long>>();
-	public synchronized void addRdbmsAssemblyTime(long nodeCount, long milliseconds) {
-		for (int r : ranges) {
-			if (nodeCount < r) {
-				List<Long> values = rdbmsAssemblyTime.get(r);
-				if (values == null) {
-					Integer range = new Integer(r);
-					values = new ArrayList<Long>();
-					rdbmsAssemblyTime.put(range, values);
-				}
-				values.add(milliseconds);
-				break;
-			}
-		}
-	}
-	public synchronized  CartesianChartModel getHbaseCategoryModel() {  
-    	CartesianChartModel categoryModel = new CartesianChartModel();  
-  
-        ChartSeries hbase = new ChartSeries();  
-        hbase.setLabel("HBase");  
-		for (int r : ranges) {
-			List<Long> values = hbaseAssemblyTime.get(r);
-			if (values == null)
-				continue;
-			long total = 0;
-			for (Long value : values) {
-				total += value.longValue();
-			}
-			 
-			long average = total / values.size();
-			hbase.set(String.valueOf(r), average);
-		}  
-        categoryModel.addSeries(hbase);  
-        
-        return categoryModel;
-    }	
-	
-	public synchronized  CartesianChartModel getRdbmsCategoryModel() {  
-    	CartesianChartModel categoryModel = new CartesianChartModel();  
-  
-        ChartSeries mysql = new ChartSeries();  
-        mysql.setLabel("MySql");  
-		for (int r : ranges) {
-			List<Long> values = rdbmsAssemblyTime.get(r);
-			if (values == null)
-				continue;
-			long total = 0;
-			for (Long value : values) {
-				total += value.longValue();
-			}
-			 
-			long average = total / values.size();
-			mysql.set(String.valueOf(r), average);
-		}  
-  
-  
-        categoryModel.addSeries(mysql);  
-        
-        return categoryModel;
-    }	
+    private TagCloudModel model;  
+    public TagCloudModel getWordTagCloudModel() {  
+    	model = new DefaultTagCloudModel();
+    	List<ParsedWordAdapter> words = new ArrayList<ParsedWordAdapter>();
+    	words.addAll(this.wordMap.values());
+    	Collections.sort(words, new Comparator<ParsedWordAdapter>(){
+			@Override
+			public int compare(ParsedWordAdapter o1, ParsedWordAdapter o2) {
+				// TODO Auto-generated method stub
+				return Integer.valueOf(o2.getHitCount()).compareTo(Integer.valueOf(o1.getHitCount()));
+			}});
+    	
+    	int max = words.size()-1;
+    	if (max > 20)
+    		max = 20;
+    	for (int i = 0; i < max; i++) {
+    		ParsedWordAdapter adapter = words.get(i);
+   	        model.addTag(new DefaultTagCloudItem(adapter.getLemma(), 
+ 	    		adapter.getHitCount()));  
+    	} 
+    	
+        return model;  
+    }  
 
-	public synchronized  CartesianChartModel getCombinedCategoryModel() {  
-    	CartesianChartModel categoryModel = new CartesianChartModel();  
-  
-        ChartSeries hbase = new ChartSeries();  
-        hbase.setLabel("HBase");  
-		for (int r : ranges) {
-			List<Long> values = hbaseAssemblyTime.get(r);
-			if (values == null)
-				continue;
-			long total = 0;
-			for (Long value : values) {
-				total += value.longValue();
-			}
-			 
-			long average = total / values.size();
-			hbase.set(String.valueOf(r), average);
-		}  
-  
-        ChartSeries mysql = new ChartSeries();  
-        mysql.setLabel("MySql");  
-		for (int r : ranges) {
-			List<Long> values = rdbmsAssemblyTime.get(r);
-			if (values == null)
-				continue;
-			long total = 0;
-			for (Long value : values) {
-				total += value.longValue();
-			}
-			 
-			long average = total / values.size();
-			mysql.set(String.valueOf(r), average);
-		}  
-  
-  
-        categoryModel.addSeries(hbase);  
-        categoryModel.addSeries(mysql);  
-        
-        return categoryModel;
-    }	
+	
 }

@@ -30,7 +30,7 @@ public class SentenceQueueBean extends PaginatedQueueBean {
     private transient CorpusService service;
     private boolean personContact = false;
     private String word;    
-    private String depType;    
+    private List<String> depTypes;    
     private String nodeType = "governor";    
     private int count;    
     protected Map<String, Node.PROPERTY> orderingMap = new HashMap<String, Node.PROPERTY>();
@@ -44,9 +44,6 @@ public class SentenceQueueBean extends PaginatedQueueBean {
     	}
     }
 
-	public String getDepType() {
-		return depType;
-	}
 
 	public String getWord() {
 		return word;
@@ -64,10 +61,17 @@ public class SentenceQueueBean extends PaginatedQueueBean {
 		this.word = word;
 	}
 
-	public void setDepType(String orgType) {
-		this.depType = orgType;
-	}
 	
+	public List<String> getDepTypes() {
+		return depTypes;
+	}
+
+
+	public void setDepTypes(List<String> depTypes) {
+		this.depTypes = depTypes;
+	}
+
+
 	public void handleDepTypeChange() {
     	this.clear();
 	}
@@ -103,15 +107,15 @@ public class SentenceQueueBean extends PaginatedQueueBean {
 		}
 		boolean asc = sortOrder != null && sortOrder.ordinal() != sortOrder.DESCENDING.ordinal();
 		if ("governor".equals(this.nodeType)) {
-			log.info("findGovernors: ("+this.count+")" + " word: " + this.word + " type: " + this.depType
+			log.info("findGovernors: ("+this.count+")" + " word: " + this.word + " type: " + this.depTypes
 					+ " (" + startRow + "/" + endRow + ")");
-	        return this.service.findGovernors(this.word, this.depType,
+	        return this.service.findGovernors(this.word, this.depTypes,
 	    		startRow, endRow, asc);
 		}
 		else {
-			log.info("findDependents: ("+this.count+")" + " word: " + this.word + " type: " + this.depType
+			log.info("findDependents: ("+this.count+")" + " word: " + this.word + " type: " + this.depTypes
 					+ " (" + startRow + "/" + endRow + ")");
-	        return this.service.findDependents(this.word, this.depType,
+	        return this.service.findDependents(this.word, this.depTypes,
 	    		startRow, endRow, asc);
 		}
 	}

@@ -17,6 +17,7 @@ import org.cloudgraph.examples.corpus.parse.query.QGovernor;
 import org.cloudgraph.examples.corpus.search.WordDependency;
 import org.cloudgraph.examples.corpus.search.query.QWordDependency;
 import org.plasma.config.DataAccessProviderName;
+import org.plasma.query.Expression;
 import org.plasma.query.Query;
 import org.plasma.sdo.access.client.DataAccessClient;
 import org.plasma.sdo.access.client.PojoDataAccessClient;
@@ -53,20 +54,7 @@ public class CorpusServiceImpl implements CorpusService {
 				if (!allDeps.remove(dep))
 					log.warn("cant remove dep");
 			}
-		}
-		
-		if (level1.get("mod") == null) {
-			Dependency syntheticRoot = new Dependency("mod", word, 0, 0, root);
-			level1.put("mod", syntheticRoot);
-		}
-		if (level1.get("arg") == null) {
-			Dependency syntheticRoot = new Dependency("arg", word, 0, 0, root);
-			level1.put("arg", syntheticRoot);
-		}
-		if (level1.get("aux") == null) {
-			Dependency syntheticRoot = new Dependency("aux", word, 0, 0, root);
-			level1.put("aux", syntheticRoot);
-		}		
+		}				
 		
 		Map<String, Dependency> level2 = new HashMap<String, Dependency>();
 		a = new WordDependency[allDeps.size()];
@@ -74,6 +62,11 @@ public class CorpusServiceImpl implements CorpusService {
 		for (WordDependency dep : a) {
 			String parentType = Dependency.getParentTypeName(dep);
 			Dependency parent = level1.get(parentType);
+			if (parent == null && parentType != null) {
+				this.mapSyntheticParent(parentType, word, root, level1);
+				parent = level1.get(parentType);
+			}
+			
 			if (parent != null) {
 				Dependency child = new Dependency(dep, parent);
 				if (!allDeps.remove(dep))
@@ -92,6 +85,17 @@ public class CorpusServiceImpl implements CorpusService {
 				if (!allDeps.remove(dep))
 					log.warn("cant remove dep");
 			}
+			else {
+				parent = level1.get("dep");
+				if (parent == null) {
+					mapSyntheticParent("dep", word, root, level1);
+					parent = level1.get("dep");
+				}
+				Dependency child = new Dependency(dep, parent);
+				if (!allDeps.remove(dep))
+					log.warn("cant remove dep");
+				level2.put(dep.getDependencyType(), child);
+			}
 		}
 		
 		if (allDeps.size() > 0)
@@ -101,6 +105,14 @@ public class CorpusServiceImpl implements CorpusService {
 		result.addAll(level1.values());
 		
 		return result;
+	}
+	
+	private void mapSyntheticParent(String name, String word, Dependency root, Map<String, Dependency> map)
+	{
+		if (map.get(name) == null) {
+			Dependency syntheticRoot = new Dependency(name, word, 0, 0, root);
+			map.put(name, syntheticRoot);
+		}		
 	}
 		
 	private Query createDependencyQuery(String word) {
@@ -120,11 +132,11 @@ public class CorpusServiceImpl implements CorpusService {
 	}
 
 	@Override
-	public List<QueueAdapter> findGovernors(String word, String dependencyType,
+	public List<QueueAdapter> findGovernors(String word, List<String> dependencyTypes,
 			Integer startRange, Integer endRange, 
 			boolean asc) {
 		List<QueueAdapter> result = new ArrayList<QueueAdapter>();
-		Query query = createGovernorQuery(word, dependencyType); 
+		Query query = createGovernorQuery(word, dependencyTypes); 
 		if (startRange != null && endRange != null) {
 			query.setStartRange(startRange);
 			query.setEndRange(endRange);
@@ -139,13 +151,13 @@ public class CorpusServiceImpl implements CorpusService {
 		}
 		return result;
 	}
-
+	
 	@Override
-	public List<QueueAdapter> findDependents(String word, String dependencyType, 
+	public List<QueueAdapter> findDependents(String word, List<String> dependencyTypes, 
     		Integer startRange, Integer endRange, 
 			boolean asc) {
 		List<QueueAdapter> result = new ArrayList<QueueAdapter>();
-		Query query = createDependentQuery(word, dependencyType); 
+		Query query = createDependentQuery(word, dependencyTypes); 
 		if (startRange != null && endRange != null) {
 			query.setStartRange(startRange);
 			query.setEndRange(endRange);
@@ -160,30 +172,55 @@ public class CorpusServiceImpl implements CorpusService {
 		}
 		return result;
 	}
- 
-	private Query createGovernorQuery(String lemma, String type) {
+		
+	private Query createGovernorQuery(String lemma, List<String> dependencyTypes) {
 		QGovernor query = QGovernor.newQuery();
 		query.select(query.wildcard())
+		     .select(query.dependency().wildcard())
 		     .select(query.dependency().dependencySet().sentence().wildcard())
 		     .select(query.dependency().dependencySet().sentence().document().page().pageTitle())
 		     .select(query.node().wildcard())
 		;
-		if (type != null)
-			query.where(query.node().lemma().eq(lemma).and(query.dependency().type().eq(type)));
+		 
+		Expression typesExpr = null;
+		if (dependencyTypes != null && dependencyTypes.size() > 0) {
+			typesExpr = query.dependency().type().eq(dependencyTypes.get(0));
+			for (int i = 1; i < dependencyTypes.size(); i++) {
+				typesExpr.or(
+					query.dependency().type().eq(dependencyTypes.get(i)));
+			}
+		}
+		if (typesExpr != null)
+		    typesExpr = query.group(typesExpr); 
+		
+		if (typesExpr != null)
+			query.where(query.node().lemma().eq(lemma).and(typesExpr));
 		else
 			query.where(query.node().lemma().eq(lemma));
 		return query;		
 	}
 
-	private Query createDependentQuery(String lemma, String type) {
+	private Query createDependentQuery(String lemma, List<String> dependencyTypes) {
 		QDependent query = QDependent.newQuery();
 		query.select(query.wildcard())
+		     .select(query.dependency().wildcard())
 		     .select(query.dependency().dependencySet().sentence().wildcard())
 		     .select(query.dependency().dependencySet().sentence().document().page().pageTitle())
 		     .select(query.node().wildcard())
 		;
-		if (type != null)
-			query.where(query.node().lemma().eq(lemma).and(query.dependency().type().eq(type)));
+		Expression typesExpr = null;
+		if (dependencyTypes != null && dependencyTypes.size() > 0) {
+			typesExpr = query.dependency().type().eq(dependencyTypes.get(0));
+			for (int i = 1; i < dependencyTypes.size(); i++) {
+				typesExpr.or(
+					query.dependency().type().eq(dependencyTypes.get(i)));
+			}
+		}	
+		if (typesExpr != null)
+		    typesExpr = query.group(typesExpr); 
+		
+		if (typesExpr != null)
+			query.where(query.node().lemma().eq(lemma).and(typesExpr));
 		else
 			query.where(query.node().lemma().eq(lemma));
 		return query;		

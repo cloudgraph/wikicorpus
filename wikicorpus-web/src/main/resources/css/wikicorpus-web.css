@@ -241,5 +241,9 @@ BODY
     white-space:normal !important;
 }
 
+.PanelNoPadding.ui-panel .ui-panel-content {
+    padding: 0;
+    border: 0;
+}
  
 

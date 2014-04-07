@@ -1,69 +1,101 @@
 package org.cloudgraph.examples.wikicorpus.index;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.util.Version;
-import org.cloudgraph.examples.corpus.wiki.Page;
-import org.cloudgraph.examples.corpus.wiki.Revision;
-import org.cloudgraph.hbase.mapreduce.GraphMapper;
-import org.cloudgraph.hbase.mapreduce.GraphWritable;
 
-public class WordMapper extends GraphMapper<Text, LongWritable> {
+import edu.jhu.nlp.wikipedia.PageCallbackHandler;
+import edu.jhu.nlp.wikipedia.WikiPage;
+import edu.jhu.nlp.wikipedia.WikiXMLDOMParser;
+
+public class WordMapper extends Mapper<LongWritable, Text, NullWritable, Text> implements PageCallbackHandler {
 	private static Log log = LogFactory.getLog(WordMapper.class);
 
+
+	private Context context;
 
 	public WordMapper() {
 	}
 
 	/** Counter enumeration to count the actual rows. */
 	public static enum Counters {
-		PAGES_STARTED, PAGES_PROCESSED, PAGES_FAILED,
+		PAGES_INPUT,
+		PAGES_SUCCESS,
+		PAGES_FAILED,
+		PAGES_PARSE_SUCCESS,
+		PAGES_PARSE_FAILED,
+		PAGES_IGNORED,
+		REDIRECT_PAGES_IGNORED,
+		FILE_PAGES_IGNORED,
+		WORDS,
 	}
 	
 	@Override
-	public void map(ImmutableBytesWritable row, GraphWritable graph,
-			Context context) throws IOException {
+	public void map(LongWritable key, Text value1, Context context) throws IOException {
 		
-		context.getCounter(Counters.PAGES_STARTED).increment(1);
-		
+		context.getCounter(Counters.PAGES_INPUT).increment(1);
 		try {
-			Page page = (Page) graph.getDataGraph().getRootObject();
-			//log.info("GRAPH: " + graph.toXMLString());
-			//log.info(page.getPageTitle());
-			Revision revision = page.getRevision(0);
-			byte[] textBytes = revision.getPlainText().getOldText();
-			String plainText = new String(textBytes, "UTF-8");
+		this.context = context;
+			//log.info(value1.toString());
+			ByteArrayInputStream is = new ByteArrayInputStream(value1.getBytes());
 			
-			Map<String, Long> map = collect(plainText, context);
-			Iterator<String> iter = map.keySet().iterator();
-			while (iter.hasNext()) {
-				String key = iter.next();
-				Long count = map.get(key);
-				Text text = new Text(key);
-				context.write(text, new LongWritable(count));
-			}
-			
-			context.getCounter(Counters.PAGES_PROCESSED).increment(1);
+			WikiXMLDOMParser parser = new WikiXMLDOMParser(is);
+			parser.setPageCallback(this);
+			parser.parse();        		
+		} catch (Exception ex) {
+			log.error(ex);
+		}
+		
+	}
 
-		} catch (Throwable t) {
+	@Override
+	public void process(WikiPage wikiPage) {
+		try {
+			
+			String redirectPage = wikiPage.getRedirectPage();			
+
+			// skip parsing
+			if (redirectPage != null && redirectPage.length() > 0)
+			{
+				context.getCounter(Counters.REDIRECT_PAGES_IGNORED).increment(1);
+				return; // have no text
+			}					
+			if (wikiPage.getTitle().startsWith("File:")) {
+				context.getCounter(Counters.FILE_PAGES_IGNORED).increment(1);
+				return; // have no text
+			}			
+			
+			byte[] bytes = wikiPage.getText().getBytes(Charset.forName("UTF-8"));
+			String plainText = new String(bytes, "UTF-8");
+			if (plainText == null || plainText.trim().length() == 0) {
+				context.getCounter(Counters.PAGES_IGNORED).increment(1);
+				return;
+			}
+			Map<String, Long> map = collect(plainText, context);			
+			
+			context.getCounter(Counters.PAGES_SUCCESS).increment(1);
+		} catch (Exception ex) {
 			context.getCounter(Counters.PAGES_FAILED).increment(1);
-			log.info(t.getMessage(), t);
+			log.error(ex.getMessage(), ex);
 		}
 	}
+	
 	
 	private Map<String, Long> collect(String text, Context context) throws IOException
 	{
@@ -76,7 +108,8 @@ public class WordMapper extends GraphMapper<Text, LongWritable> {
 		CharTermAttribute charTermAttribute = ts.addAttribute(CharTermAttribute.class);
 		ts.reset();
 		while (ts.incrementToken()) {
-		    int startOffset = offsetAttribute.startOffset();
+			context.getCounter(Counters.WORDS).increment(1);
+			int startOffset = offsetAttribute.startOffset();
 		    int endOffset = offsetAttribute.endOffset();
 		    String term = charTermAttribute.toString();
 		    Long count = result.get(term);

@@ -5,20 +5,21 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
+import org.cloudgraph.examples.corpus.common.XmlInputFormat;
 import org.cloudgraph.examples.corpus.wiki.query.QPage;
-import org.cloudgraph.hbase.mapreduce.GraphMapReduceSetup;
 import org.cloudgraph.hbase.service.CloudGraphContext;
 import org.plasma.query.model.Query;
 
 /**
- * hadoop jar /home/lib/wikicorpus-index-0.5.1.jar org.cloudgraph.examples.corpus.index.WordDriver -libjars ${LIBJARS} 
+ * hadoop jar /home/lib/wikicorpus-index-0.5.1.jar org.cloudgraph.examples.wikicorpus.index.WordDriver -libjars ${LIBJARS} /tmp/wikixml /usr/root/tmp
  */
 public class WordDriver {
 	private static Log log = LogFactory.getLog(WordDriver.class);
@@ -50,38 +51,45 @@ public class WordDriver {
 		conf.set("mapred.job.map.memory.mb", "4096");
 		conf.set("mapred.job.reduce.memory.mb", "1024");
 		
-		//long milliSeconds = 1000*60*20; // 60 minutes rather than default 10 min
-		//conf.setLong("mapred.task.timeout", milliSeconds);
+		long milliSeconds = 1000*60*20; // 60 minutes rather than default 10 min
+		conf.setLong("mapred.task.timeout", milliSeconds);
 		
 		String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-		if (otherArgs.length != 0) {
+		if (otherArgs.length != 2) {
 			printUsage("Wrong number of parameters: " + args.length);
 			System.exit(-1);
 		}
 		try {
-			runJob(conf);
+			runJob(conf, otherArgs[0], otherArgs[1]);
 
 		} catch (IOException ex) {
 			log.error(ex.getMessage(), ex);
 		}
 	}
 
-	public static void runJob(Configuration conf) throws IOException {
+	public static void runJob(Configuration conf, String input, String output) throws IOException {
 
+		conf.set(XmlInputFormat.START_TAG_KEY, "<page>");
+		conf.set(XmlInputFormat.END_TAG_KEY, "</page>");
+		conf.set(
+				"io.serializations",
+				"org.apache.hadoop.io.serializer.JavaSerialization,org.apache.hadoop.io.serializer.WritableSerialization");
 
 		Job job = new Job(conf, WordDriver.class.getSimpleName());
+		FileInputFormat.setInputPaths(job, input);
 		job.setJarByClass(WordDriver.class);
-
-		Query queryIn = createInputQuery();
-	    GraphMapReduceSetup.setupGraphMapperJob(queryIn,
-	    		WordMapper.class, Text.class,
-				LongWritable.class, job);
-		job.setNumReduceTasks(1);
-		job.setReducerClass(WordReducer.class);
-		
-		job.setOutputFormatClass(NullOutputFormat.class);
+		job.setMapperClass(WordMapper.class);
+		job.getConfiguration().setLong("mapred.max.split.size", 1000000); // bytes rather than default 64M
+		job.setNumReduceTasks(0);
+		job.setInputFormatClass(XmlInputFormat.class);
 		job.setOutputKeyClass(NullWritable.class);
-		job.setOutputValueClass(NullWritable.class);
+		job.setOutputValueClass(Text.class);
+		Path outPath = new Path(output);
+		FileOutputFormat.setOutputPath(job, outPath);
+		FileSystem dfs = FileSystem.get(outPath.toUri(), conf);
+		if (dfs.exists(outPath)) {
+			dfs.delete(outPath, true); // watch it this works
+		}
 
 		try {
 			job.waitForCompletion(true);

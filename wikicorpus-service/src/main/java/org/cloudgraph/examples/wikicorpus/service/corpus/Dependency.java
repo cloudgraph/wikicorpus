@@ -23,6 +23,8 @@ public class Dependency {
 	private static Map<String, String> definitions = new HashMap<String, String>();
 	private static Map<String, String> parents = new HashMap<String, String>();
 	{
+		names.put("dep", "Dependency");
+
 		//aux
 		names.put("aux", "Auxiliary");
 		names.put("auxpass", "Passive auxiliary");
@@ -32,50 +34,55 @@ public class Dependency {
 		
 		//arg
 		names.put("arg", "Argument");
-		
+		//arg-agent
 		names.put("agent", "Agent");
 		parents.put("agent", "arg");
+		
 		//arg-comp
 		names.put("comp", "Complement");
 		parents.put("comp", "arg");		
 		names.put("acomp", "Adjectival Complement");
-		parents.put("acomp", "comp");
+		parents.put("acomp", "arg");
 		names.put("ccomp", "Clausal complement with internal subject");
-		parents.put("ccomp", "comp");
+		parents.put("ccomp", "arg");
 		names.put("xcomp", "Clausal complement with external subject");
-		parents.put("xcomp", "comp");
+		parents.put("xcomp", "arg");
 		names.put("obj", "Object");
-		parents.put("obj", "comp");		
+		parents.put("obj", "arg");		
 		names.put("dobj", "Direct Object");
-		parents.put("dobj", "obj");
+		parents.put("dobj", "arg");
 		names.put("iobj", "Indirect Object");
-		parents.put("iobj", "obj");
+		parents.put("iobj", "arg");
 		names.put("pobj", "Object of Preposition");
-		parents.put("pobj", "obj");
+		parents.put("pobj", "arg");
+		names.put("pcomp", "Prepositional Complement");
+		parents.put("pcomp", "arg");
+		
 		//arg-subj
 		names.put("subj", "Subject");
 		parents.put("subj", "arg");		
 		names.put("nsubj", "Nominal Subject");
-		parents.put("nsubj", "subj");		
+		parents.put("nsubj", "arg");		
 		names.put("nsubjpass", "Passive Nominal Subject");
-		parents.put("nsubjpass", "nsubj");		
+		parents.put("nsubjpass", "arg");		
 		names.put("csubj", "Clausal Subject");
-		parents.put("csubj", "subj");		
+		parents.put("csubj", "arg");		
 		names.put("csubjpass", "Passive Clausal Subject");
-		parents.put("csubjpass", "csubj");		
+		parents.put("csubjpass", "arg");		
 		
 		
 		names.put("cc", "Coordination");
+		parents.put("cc", "dep");
 		names.put("conj", "Conjunct");
+		parents.put("conj", "dep");
 		names.put("expl", "Expletive");
+		parents.put("expl", "dep");
 		
 		//acomp
 		names.put("acomp", "Adjectival Complement");		
 		definitions.put("acomp", "An adjectival complement of a verb is an adjectival phrase which functions as the complement (like an object of the verb)");		
+		parents.put("acomp", "dep");
 		
-		//agent
-		names.put("agent", "Agent");
-		definitions.put("agent", "An agent is the complement of a passive verb which is introduced by the preposition by anddoes the action. This relation only appears in the collapsed dependencies, where it can replace prep by, where appropriate. It does not appear in basic dependencies output. ");
 		
 		
 		//mod
@@ -88,8 +95,8 @@ public class Dependency {
 		names.put("advmod", "Adverbial Modifier");		
 		definitions.put("advmod", "An adverbial modifier of a word is a (non-clausal) adverb or adverbial phrase (ADVP) that serves to modify the meaning of the word.");		 
 		parents.put("advmod", "mod");		
-		    names.put("neg", "negation modifier");
-		    parents.put("neg", "advmod");
+		names.put("neg", "negation modifier");
+		parents.put("neg", "mod");
 
 		names.put("amod", "Adjectival Modifier");
 		definitions.put("amod", "An adjectival modifier of an NP is any adjectival phrase that serves to modify the meaning of the NP.");
@@ -109,8 +116,8 @@ public class Dependency {
 		parents.put("vmod", "mod");
 		names.put("mwe", "Multi-Word Expression Modifier");
 		parents.put("mwe", "mod");		
-		    names.put("mark", "Marker (word introducing an advcl or ccomp)");
-		    parents.put("mark", "mwe");
+		names.put("mark", "Marker");
+		parents.put("mark", "mod");
 	    names.put("rcmod", "Relative Clause Modifier");
 		parents.put("rcmod", "mod");		
 	    names.put("quantmod", "Quantifier Modifier");
@@ -135,6 +142,10 @@ public class Dependency {
 		parents.put("possessive", "mod");		
 	    names.put("prt", "Phrasal Verb Particle");				
 		parents.put("prt", "mod");		
+		names.put("infmod", "Info Modifier");
+		parents.put("infmod", "mod");	
+		names.put("partmod", "Partial Modifier");
+		parents.put("partmod", "mod");	
 		
 		
 		//conj
@@ -152,11 +163,17 @@ public class Dependency {
 		
 		
 		names.put("parataxis", "Parataxis");
+		parents.put("parataxis", "dep");	
 		names.put("punct", "Punctuation");
+		parents.put("punct", "dep");	
 		names.put("ref", "Referent");
+		parents.put("ref", "dep");	
 		names.put("sdep", "Semantic Dependent");
+		parents.put("sdep", "dep");	
 		names.put("xsubj", "Controlling Subject");
-		parents.put("xsubj", "sdep");		
+		parents.put("xsubj", "dep");	
+		names.put("attr", "Attribute");
+		parents.put("attr", "dep");	
 		
 	}
 	
@@ -207,7 +224,8 @@ public class Dependency {
 
 	public static String getDisplayableType(String type) {
 		String result = null;
-		
+		if (type == null)
+			return null;
 		int idx = type.indexOf("_");
 		if (idx < 0) {
 			result = names.get(type);
@@ -246,9 +264,11 @@ public class Dependency {
 	public Dependency getParent() {
 		return parent;
 	}
+	
 	public void setParent(Dependency parent) {
 		this.parent = parent;
 	}
+	
 	public List<Dependency> getDependencies() {
 		if (this.dependencies == null)
 			this.dependencies = new ArrayList<Dependency>();
@@ -299,6 +319,15 @@ public class Dependency {
 			}
 			
 		};
+	}
+	
+	public String toString() {
+		if (this.parent == null)
+		    return this.lemma + ":" + this.depTypeName + "(" 
+				+ this.governorCount + "/" + this.dependentCount + ")";
+		else
+		    return this.lemma + ":" + this.parent.getDepTypeName() + "/" + this.depTypeName + "(" 
+				+ this.governorCount + "/" + this.dependentCount + ")";
 	}
 	
 }

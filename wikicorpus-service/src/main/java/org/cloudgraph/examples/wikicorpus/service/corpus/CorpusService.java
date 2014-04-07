@@ -12,10 +12,11 @@ import org.cloudgraph.examples.corpus.search.WordDependency;
 public interface CorpusService {
     public List<Dependency> findDependencies(String word);
 
-    public List<QueueAdapter> findGovernors(String word, String dependencyType, 
+    public List<QueueAdapter> findGovernors(String word, List<String> dependencyTypes, 
     		Integer startRange, Integer endRange, 
 			boolean asc);
-    public List<QueueAdapter> findDependents(String word, String dependencyType, 
+    public List<QueueAdapter> findDependents(String word, List<String> dependencyTypes, 
     		Integer startRange, Integer endRange, 
 			boolean asc);
+	 
 }

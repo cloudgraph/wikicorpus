@@ -17,16 +17,35 @@
     </style>
     <p:spacer width="1" height="6"/>
     <p:panel style="width:100%;">
-        <p>WordNet® is a large lexical database of English. Nouns, verbs, adjectives and adverbs are grouped into sets of cognitive synonyms (synsets), each expressing a distinct concept. Synsets are interlinked by means of conceptual-semantic and lexical relations. Wordnet® is a trademark of Princeton University. See Princeton University "About WordNet"; WordNet®. Princeton University. 2010. <a href="http://wikicorpus.princeton.edu"></a></p>
-        <p>This example application is an adaptation of Wordnet® for Apache HBase™ using CloudGraph™, a suite of Java™ standards-based data-graph mapping and ad hoc query services for big-table sparse, columnar "cloud" databases.</p> 
-        <p>For more information on CloudGraph™, see <a href="http://cloudgraph.org">http://cloudgraph.org</a></p>
-        <p>This adaptation of Wordnet® for HBase™ was accomplished in 5 basic steps using CloudGraph™ and related tools.</p>
-        <p>1.) Model Creation. First the Wordnet® relational MySql® database schema was automatically reverse engineered and converted to UML for CloudGraph™ using Plasma and PlasmaSDO™ Relational Database (RDB) provisioning tools. Models can be easily hand written as well.</p>
-        <p>2.) Code Generation. Using PlasmaSDO™ both a Service Data Objects (SDO) persistence layer and Domain Specific Language (DSL) query layer were generated from the Wordnet® UML model. These generated packages are used in the application to query and update the HBase™ data store using the CloudGraph™ HBase™ Service. Javadocs for the generated code can be browsed in the Javadocs section of this application.</p>
-        <p>3.) HBase™ Table Mapping. For this application, all Wordnet® RDB tables and views were collapsed into a single target HBase™ table. Any number of HBase™ tables could have been used but Wordnet® is often used as part of larger applications, so to economize on tables (typical rule-of-thumb is no more than 10 tables per application) a single table was used. Using the CloudGraph™ configuration facility, all Wordnet® data graphs were mapped to the HBase™ data-store table(s) with specific model root types and composite row key definitions.</p>
-        <p>4.) Data Migration. Using the generated persistence and DSL query packages, a custom data migration stand-alone application was written to read from the Wordnet® relational database using CloudGraph™ RDB service and incrementally write to the HBase™ data store using the CloudGraph™ HBase™ Service. </p>
-        <p>5.) Web Application Creation. Finally with an HBase™ data store populated with all the rich semantic and lexical data from Wordnet®, two services and a JSF based web application were written using the new AJAX and JQuery based PrimeFaces JSF component set. The first service is called from the auto-complete field which triggers CloudGraph™ HBase™ to use the HBase™ <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FuzzyRowFilter.html">fuzzy row filter</a> API. Then using the selected word, the 'find' button calls a second service which uses a large DSL query spanning all semantic and lexical relations for the given word, as well as several other entities such as example sentences. The DSL query spans more than 7 nodes from the source word to its related target words looking (very roughly) like Words->Senses->Synsets->Semlinks/Lexlinks->Synsets->Senses->Words. Larger word relation graphs typically contain over 100 nodes and are assembled in the middle tier in an average of 200 milliseconds from a 3 node CentOs-Linux HBase cluster.</p>
-        <p>WordNet® is a registered trademark of Princeton University. HBase™ is a trademark of Apache Software Foundation. MySql® is a registered trademark of Oracle Corporation. CloudGraph™ is a trademark of TerraMeta Software Inc. </p>
+        <p>This example application transforms the roughly 5 million page, 1.5 billion word Wikipedia (English) text content into an NLP parsed corpus for Apache HBase™ using CloudGraph®, a suite of Java™ standards-based data-graph mapping and ad hoc query services for big-table sparse, columnar "cloud" databases.</p> 
+        <p>No third party search engine or other specialized architecture is used, only Hadoop, MapReduce, HBase and the CloudGraph® HBase Service and MapReduce extensions.</p>
+        <p>For more information on CloudGraph®, see <a href="http://cloudgraph.org">http://cloudgraph.org</a></p>
+        <p>Natural language processing (NLP) is a field of computer science, artificial intelligence, and linguistics concerned with the interactions between computers and human (natural) languages. 
+         This application uses open source NLP software from the <a href="http://nlp.stanford.edu/software/index.shtml">Stanford NLP Group</a>. </p>
+        <p>In general the Stanford NLP software transforms raw text into word dependency "trees" or graphs composed of sentences, word tokens and typed dependencies. The word tokens carry part-of-speech, character offsets, named entity and other tagging information depending on configuration settings, while the typed dependencies link the source or "governor" word to the target or "dependent" word through a rich set of hierarchically organized types such as modifiers (e.g. Adverbial Clause Modifier), arguments, auxiliaries and many others.</p>
+        <p>Wiki pages very greatly in size, but the NLP graphs for each Wiki page are typically composed of tens-of-thousands of individual NLP nodes.</p>
+        <p>While the NLP parsing results are amazingly rich and appear quite accurate, the parsing activity itself is extremely CPU and memory intensive, and parsing a vast amount of text such as Wikipedia in a reasonable time frame requires a large Hadoop cluster. We are however incrementally parsing and re-indexing nightly and are looking into other hardware options, but given the already large size of the corpus don't project any memory or performance problems as the corpus grows.</p>
+        
+        <p>Several MapReduce jobs are used which roughly fall into three areas.</p>
+        <p>1.) Parse Wiki XML into plain text, generating word dependency trees using Stanford NLP (avg. 10K NLP nodes per wiki page</p>
+        <p>2.) Reduce dependency trees to typed governor/dependent indexed aggregates with POS and other data.</p>
+        <p>3.) Reduce word frequencies, other counts to indexed aggregates</p>
+
+        <p>The MapReduce jobs leverage several CloudGraph® MapReduce extensions.</p>
+        <p><b>MapReduce InputFormat Extensions</b></p>
+        <p><a href="http://www.cloudgraph.org/apidocs/org/cloudgraph/hbase/mapreduce/GraphInputFormat.html">GraphInputFormat</a> – HBase scan(s), graph assembly and “recognition” from input Query. (i.e. detect properties deep within table rows)</p>
+        <p><a href="http://www.cloudgraph.org/apidocs/org/cloudgraph/hbase/mapreduce/GraphXmlInputFormat.html">GraphXmlInputFormat</a> – Heterogeneous, arbitrary graphs unmarshalled from SDO XML</p>        
+        <p><b>MapReduce OutputFormat Extensions</b></p>
+        <p><a href="http://www.cloudgraph.org/apidocs/org/cloudgraph/hbase/mapreduce/GraphXmlOutputFormat.html">GraphXmlOutputFormat</a> – Heterogeneous data graphs marshalled to SDO XML</p>
+        <p><b>MapReduce Mapper Extensions</b></p>
+        <p><a href="http://www.cloudgraph.org/apidocs/org/cloudgraph/hbase/mapreduce/GraphMapper.html">GraphMapper</a> – consume fully assembled data graphs as (GraphWritable) – traverse and produce aggregates and/or output/persist new XML or data graphs</p>
+        <p><b>MapReduce Reducer Extensions</b></p>
+        <p><a href="http://www.cloudgraph.org/apidocs/org/cloudgraph/hbase/mapreduce/GraphReducer.html">GraphReducer</a> – consume aggregates output/persist new XML or data graphs</p>
+        <p><b>Counters</b></p>
+        <p><a href="http://www.cloudgraph.org/apidocs/org/cloudgraph/hbase/mapreduce/Counters.html">Counters</a> - job/task graph node counts, assembly times, ...more</p>
+        
+        <p>Note on Copyrights. Wikipedia contain hundreds of millions of words of copyrighted material. The only way that their use is legal (under US Fair Use Law) is because of the limited "Keyword in Context" rendering. It's kind of like the "snippet defense" used by Google. They retrieve and index billions of words of copyright material, but they only allow end users to access "snippets" of this data from their servers.</p>
+        <p>CloudGraph® is a trademark of TerraMeta Software Inc.</p>
     </p:panel>
     </h:form>
 </ui:define>

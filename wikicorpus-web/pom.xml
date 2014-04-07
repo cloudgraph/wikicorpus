@@ -10,7 +10,7 @@
 	<artifactId>wikicorpus-web</artifactId>
 	<packaging>war</packaging>
 	<version>0.5.1</version>
-	<name>wordnet web</name>
+	<name>Wikicorpus Web</name>
    <description>CloudGraph Corpora Annotation Example</description>  
   <url>http://wikicorpus.cloudgraph.org</url>
     <properties>
@@ -197,35 +197,6 @@
 
 
     </dependencies>
-    <profiles>
-	    <profile>
-	      <id>weblogic</id>
-	      <activation>
-	        <property>
-	          <name>server</name>
-	          <value>weblogic</value>
-	        </property>
-	      </activation>
-          <properties>
-            <servlet-api-scope>provided</servlet-api-scope>
-            <javaee-api-scope>provided</javaee-api-scope>
-          </properties>
-	    </profile>
-	    <profile>
-	      <id>tomcat</id>	      
-	      <activation>
-	        <activeByDefault>true</activeByDefault>
-	        <property>
-	          <name>server</name>
-	          <value>tomcat</value>
-	        </property>
-	      </activation>
-          <properties>
-            <servlet-api-scope>compile</servlet-api-scope>
-            <javaee-api-scope>compile</javaee-api-scope>
-          </properties>
-	    </profile>
-    </profiles>
     <build>
 		<finalName>wikicorpus</finalName>
 		<plugins>
@@ -287,7 +258,7 @@
                      <goal>copy-resources</goal>
                   </goals>
                   <configuration>
-                     <outputDirectory>${basedir}/target/wikicorpus-web/resources
+                     <outputDirectory>${basedir}/target/wikicorpus/resources
                         </outputDirectory>
                      <resources>          
                         <resource>

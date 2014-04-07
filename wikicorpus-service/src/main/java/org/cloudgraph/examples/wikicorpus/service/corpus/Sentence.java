@@ -17,6 +17,14 @@ public class Sentence extends QueueAdapter {
 		this.node = node;
 	}
     
+    public boolean getIsGovernor() {
+    	return this instanceof GovernorSentence;
+    }
+    
+    public boolean getIsDependent() {
+    	return this instanceof DependentSentence;
+    }
+    
 	public String getPOS() {
 		return this.node.getPos();
 	}
@@ -30,8 +38,14 @@ public class Sentence extends QueueAdapter {
 	}
 
 	public String getDependencyTypeDisplayName() {
-		return org.cloudgraph.examples.wikicorpus.service.corpus.Dependency.getDisplayableType(
+		try {
+		    return org.cloudgraph.examples.wikicorpus.service.corpus.Dependency.getDisplayableType(
 				this.dependency.getType_());
+		}
+		catch (Throwable t) {
+			log.error(t.getMessage(), t);
+			return this.dependency.getType_();
+		}
 	}
 	
 	public String getDependencyTypeName() {

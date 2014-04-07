@@ -103,6 +103,11 @@
         <artifactId>wikicorpus-model</artifactId>
         <version>0.5.1</version>
     </dependency>
+    <dependency>
+        <groupId>eij</groupId>
+        <artifactId>wikixmlj</artifactId>
+        <version>r5</version>
+    </dependency>
 
   </dependencies>
   <build>

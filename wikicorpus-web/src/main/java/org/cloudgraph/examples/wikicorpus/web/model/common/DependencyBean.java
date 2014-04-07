@@ -11,6 +11,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,8 +24,10 @@ import org.plasma.sdo.helper.PlasmaXMLHelper;
 import org.plasma.sdo.xml.DefaultOptions;
 import org.primefaces.event.ItemSelectEvent;
 import org.primefaces.event.SelectEvent;
+import org.primefaces.event.TabChangeEvent;
 import org.primefaces.model.chart.CartesianChartModel;
 import org.primefaces.model.chart.ChartSeries;
+import org.primefaces.model.tagcloud.TagCloudItem;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.helper.XMLDocument;
@@ -38,7 +41,15 @@ public class DependencyBean extends ModelBean {
     protected CorpusService hbase;
     private ReferenceDataCache cache;
     private static List<Dependency> EMPTY_DEP_LIST = new ArrayList<Dependency>();
-    private int tabIndex;
+	private int seriesIndex = -1;
+	private int depIndex = -1;
+	private long grandTotalGovernorCount;
+	private long grandTotalDependentCount;
+	private double maxCount;
+	private CartesianChartModel categoryModel = new CartesianChartModel();  
+	private List<Dependency> dependencies = null;
+	private Dependency currentRoot = null;
+	private Dependency selectedRoot = null;
     
     public DependencyBean() {
 	  	this.hbase = new CorpusServiceImpl();
@@ -46,23 +57,15 @@ public class DependencyBean extends ModelBean {
 	  	this.cache = this.beanFinder.findReferenceDataCache();
     }
         
-    public int getTabIndex() {
-		return tabIndex;
-	}
-
-	public void setTabIndex(int tabIndex) {
-		this.tabIndex = tabIndex;
-	}
-
-	public String getWord() {
+ 	public String getWord() {
 		return this.word;
 	}
 	
-	public void setWord(String value) {
-		 
-		if (this.word != null && value != null /*&& !this.word.equals(value)*/) 
-			handleWordChange();
+	public void setWord(String value) {		 
 	    this.word = value.toLowerCase();
+	    this.cache.incrementWord(this.word);
+		clearAll();
+		refreshAll();
 	}
     
 	public boolean getHasWord() {
@@ -82,7 +85,8 @@ public class DependencyBean extends ModelBean {
     
 	public void handleWordChange(SelectEvent event) {  
         try {   
-        	handleWordChange();
+        	clearAll();
+        	refreshAll();
         } catch (Throwable t) {
         	log.error(t.getMessage(), t);
  	        FacesMessage msg = new FacesMessage("Internal Error");  	       
@@ -91,43 +95,28 @@ public class DependencyBean extends ModelBean {
         }       		
 	}
 	
-	private void handleWordChange() {
+    public void handleTagCloudWordSelect(SelectEvent event) {  
+        TagCloudItem item = (TagCloudItem) event.getObject();  
+    	setWord(item.getLabel());
+    }  
+	
+	private void clearAll() {
+		this.dependencies = null;
+		this.categoryModel = null;
+		this.level = 0;
+		this.depIndex = -1;
+		this.seriesIndex = -1;
+		this.selectedRoot = null;
+	}
+	
+	private void refreshAll() {
 		try {
-			this.dependencies = null;
-			this.categoryModel = null;
-			this.level = 0;
-			this.depIndex = -1;
-			this.seriesIndex = -1;
 			refreshCategoryModel(); 
 			setupSentences();
 		}
 		catch (Throwable t) {
 			log.error(t.getMessage(), t);
 		}
-	}
-	
-	private void setupSentences()
-	{
-		SentenceQueueBean sentences = this.beanFinder.findSentenceQueueBean();
-		sentences.setWord(this.word);
-		if (level == 0) {
-			sentences.setDepType(null);
-			sentences.setCount((int)this.grandTotalCount); // FIXME
-		}
-		else { 		     					
-			sentences.setDepType(this.selectedRoot.getDepTypeName());
-			if (seriesIndex == 0) {
-				sentences.setCount(this.selectedRoot.getGovernorCountDeep());  
-				sentences.setNodeType("governor");
-	 		}
-	 		else if (seriesIndex == 1) {
-				sentences.setCount(this.selectedRoot.getDependentCountDeep());  
-				sentences.setNodeType("dependent");
-	 		}
-		}
-		
-		sentences.clear();
-		
 	}
 	
 	public List<Dependency> getDependencies() {
@@ -141,26 +130,8 @@ public class DependencyBean extends ModelBean {
 		
 		
 		try  {
-			//if (dependencies.size() == 0)			
-			    dependencies = service.findDependencies(this.word);
-        	/*
-            Words wd = null;//this.cache.getWord(this.word);
-            if (wd != null) {            	
-            	result = service.findDependencies(wd.getLemma());
-            }
-            else {
-            	result = service.findDependencies(this.word);
-            }
-            if (result == null || result.size() == 0) {
-    	        FacesMessage msg = new FacesMessage("No results found for '" + this.word + "'");  	       
-    	        FacesContext.getCurrentInstance().addMessage(null, msg);  
-    	        return EMPTY_RELATION_LIST;
-            }
-            else {
-            	return result;
-            }
-            */
-			
+			if (this.dependencies == null || this.dependencies.size() == 0)			
+				this.dependencies = service.findDependencies(this.word);
 			return dependencies;
 		}
 		catch (Throwable t) {
@@ -176,14 +147,24 @@ public class DependencyBean extends ModelBean {
 		return level;
 	}
 
+	public String getSelectedRootDisplayName() {
+		if (this.selectedRoot != null) {
+			if (this.selectedRoot.getParent() != null && !"root".equals(this.selectedRoot.getParent().getDepTypeName())) {
+				return this.selectedRoot.getParent().getDisplayType() + " / " + this.selectedRoot.getDisplayType();
+			}
+			else {
+				return this.selectedRoot.getDisplayType();
+			}
+		}
+		return "";
+	}
 
-	private int seriesIndex = -1;
-	private int depIndex = -1;
 	
 	public void handleDependencySelect(ItemSelectEvent event) {  		
 		log.info("series: " + event.getSeriesIndex());
 		log.info("item: " + event.getItemIndex());
-		this.seriesIndex = event.getSeriesIndex();
+		if (level == 0) // only have 2 series at level 0
+		    this.seriesIndex = event.getSeriesIndex();
 		this.depIndex = event.getItemIndex();
  	    Dependency nextRoot = dependencies.get(depIndex);
  	    if (nextRoot.getDependencies().size() > 0) {
@@ -196,7 +177,70 @@ public class DependencyBean extends ModelBean {
 	    }
  	    this.selectedRoot = nextRoot;
  	    setupSentences();
-	}  
+	} 
+	
+	private void setupSentences()
+	{
+		try {
+		SentenceQueueBean sentences = this.beanFinder.findSentenceQueueBean();
+		sentences.setWord(this.word);
+		if (this.selectedRoot == null) {
+			sentences.setDepTypes(null);
+			 
+			if (this.tabIndex == 0) {			    
+				sentences.setCount((int)(this.grandTotalGovernorCount + this.grandTotalDependentCount)); // FIXME
+			}
+			else {
+				if ("Y".equals(this.displayGovernors)) {
+					sentences.setCount((int)this.grandTotalGovernorCount);  
+					sentences.setNodeType("governor");
+				}
+				else {
+					sentences.setCount((int)this.grandTotalDependentCount);  
+					sentences.setNodeType("dependent");
+				}				
+		    }
+		     
+		}
+		else { 	
+			List<String> depTypes = new ArrayList<String>();
+			if (this.selectedRoot.getDependencies().size() > 0) {
+				for (Dependency dep : this.selectedRoot.getDependencies())
+					depTypes.add(dep.getDepTypeName());
+		    }
+		    else
+		    	depTypes.add(this.selectedRoot.getDepTypeName());
+			sentences.setDepTypes(depTypes);
+		    	
+			if (seriesIndex == -1) {
+				if ("Y".equals(this.displayGovernors)) {
+					sentences.setCount(this.selectedRoot.getGovernorCountDeep());  
+					sentences.setNodeType("governor");
+				}
+				else {
+					sentences.setCount(this.selectedRoot.getDependentCountDeep());  
+					sentences.setNodeType("dependent");
+				}
+			}
+			else if (seriesIndex == 0) {
+				sentences.setCount(this.selectedRoot.getGovernorCountDeep());  
+				sentences.setNodeType("governor");
+	 		}
+	 		else if (seriesIndex == 1) {
+				sentences.setCount(this.selectedRoot.getDependentCountDeep());  
+				sentences.setNodeType("dependent");
+	 		}
+		}
+		
+		sentences.clear();
+		
+		}
+		catch (Throwable t) {
+			log.error(t.getMessage(), t);
+		}
+		
+	}
+	
 	
 	public void back(ActionEvent event) {
 		this.level--;
@@ -213,8 +257,6 @@ public class DependencyBean extends ModelBean {
  		setupSentences();
 	}
 	 	
-	private long grandTotalCount;
-	private double maxCount;
 	public int getMaxAggregate() {
 		return Double.valueOf(this.maxCount).intValue();
 	}
@@ -227,7 +269,9 @@ public class DependencyBean extends ModelBean {
 	
 	private void refreshCategoryModel() {
 		this.categoryModel = new CartesianChartModel();
-		this.grandTotalCount = 0;
+		this.grandTotalGovernorCount = 0;
+		this.grandTotalDependentCount = 0;
+		this.maxCount = 0;
     	try {
     		if (dependencies == null) {
 	     	    dependencies = getDependencies();		     	   
@@ -260,10 +304,6 @@ public class DependencyBean extends ModelBean {
     	}
 	}
 	
-	private CartesianChartModel categoryModel = new CartesianChartModel();  
-	private List<Dependency> dependencies = null;
-	private Dependency currentRoot = null;
-	private Dependency selectedRoot = null;
 	
 	public boolean getHasSelectedRoot() {
 		return selectedRoot != null;
@@ -271,6 +311,12 @@ public class DependencyBean extends ModelBean {
 	
 	public Dependency getSelectedRoot() {
 		return selectedRoot;
+	}
+	
+	public void setSelectedRoot(Dependency selectedRoot) {
+		this.selectedRoot = selectedRoot;
+ 		refreshCategoryModel(); 
+ 		setupSentences();
 	}
 
 	public CartesianChartModel getDependencyCategoryModel() {  
@@ -298,19 +344,49 @@ public class DependencyBean extends ModelBean {
 		}
 		return null;
 	}
+
+	private String displayGovernors = "Y";
 	
+	public String getDisplayGovernors() {
+		return displayGovernors;
+	}
+
+	public void setDisplayGovernors(String displayGovernors) {
+		this.displayGovernors = displayGovernors;
+		this.refreshCategoryModel();
+		this.setupSentences();
+	}
+
+	private String logarithmicDisplay = "Y";
+			
+	public String getLogarithmicDisplay() {
+		return logarithmicDisplay;
+	}
+
+	public void setLogarithmicDisplay(String logarithmicDisplay) {
+		this.logarithmicDisplay = logarithmicDisplay;
+		refreshCategoryModel();
+	}
+
 	private ChartSeries createGovernorSeries(List<Dependency> deps) {
      	ChartSeries governor = new ChartSeries();  
         governor.setLabel("Governor");  
     	for (Dependency dep : deps) {
     		long count = dep.getGovernorCountDeep();
-    		this.grandTotalCount += count;
-    		double logValue = 0;
-    		if (count > 0) 
-		        logValue = Math.log((double)count);
-		    governor.set(dep.getDisplayType(), logValue);
-		    if (logValue > maxCount)
-			    maxCount = logValue;    		 
+    		this.grandTotalGovernorCount += count;    		
+    		if ("Y".equals(this.logarithmicDisplay)) {
+	    		double logValue = 0;
+	    		if (count > 0) 
+			        logValue = Math.log((double)count);
+			    governor.set(dep.getDisplayType(), logValue);
+			    if (logValue > maxCount)
+				    maxCount = logValue;    
+    		}
+    		else {
+			    governor.set(dep.getDisplayType(), count);
+			    if (count > maxCount)
+				    maxCount = count;    
+    		}
     	}
     	return governor;
 	}
@@ -320,16 +396,45 @@ public class DependencyBean extends ModelBean {
         dependent.setLabel("Dependent");  
     	for (Dependency dep : deps) {
     		long count = dep.getDependentCountDeep();
-    		this.grandTotalCount += count;
-    		double logValue = 0;
-    		if (count > 0) 
-    		    logValue = Math.log((double)count);
-		    dependent.set(dep.getDisplayType(), logValue);
-		    if (logValue > maxCount)
-			    maxCount = logValue;
+    		this.grandTotalDependentCount += count;
+    		if ("Y".equals(this.logarithmicDisplay)) {
+	    		double logValue = 0;
+	    		if (count > 0) 
+	    		    logValue = Math.log((double)count);
+			    dependent.set(dep.getDisplayType(), logValue);
+			    if (logValue > maxCount)
+				    maxCount = logValue;
+    		}
+    		else {
+    			dependent.set(dep.getDisplayType(), count);
+			    if (count > maxCount)
+				    maxCount = count;    
+    		}
     	}
 		return dependent;
 	}
+	
+	
+	private int tabIndex = 0;
+    public int getTabIndex() {
+		return tabIndex;
+	}
+
+	public void setTabIndex(int tabIndex) {
+		this.tabIndex = tabIndex;
+	}	
+	
+    public void onTabChange(TabChangeEvent event) {  
+    	if ("Chart".equalsIgnoreCase(event.getTab().getTitle()))
+    		this.tabIndex = 0;
+    	else if ("Menu".equalsIgnoreCase(event.getTab().getTitle()))
+    		this.tabIndex = 1;
+    	else
+    		log.warn("WTF? " + event.getTab().getTitle());
+    	
+    	clearAll();
+    	refreshAll();
+    }  
 	
 	protected String serializeGraph(DataGraph graph) throws IOException
     {

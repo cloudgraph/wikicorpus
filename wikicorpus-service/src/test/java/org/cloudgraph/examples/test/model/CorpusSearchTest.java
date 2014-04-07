@@ -21,14 +21,17 @@
  */
 package org.cloudgraph.examples.test.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.CommonTest;
+import org.cloudgraph.examples.wikicorpus.service.QueueAdapter;
 import org.cloudgraph.examples.wikicorpus.service.corpus.CorpusService;
 import org.cloudgraph.examples.wikicorpus.service.corpus.CorpusServiceImpl;
 import org.cloudgraph.examples.wikicorpus.service.corpus.Dependency;
+import org.cloudgraph.examples.wikicorpus.service.corpus.GovernorSentence;
 import org.cloudgraph.examples.wikicorpus.service.corpus.Sentence;
 import org.cloudgraph.examples.corpus.parse.Governor;
 import org.cloudgraph.examples.corpus.search.WordDependency;
@@ -44,7 +47,7 @@ public class CorpusSearchTest extends CommonTest {
 		this.service = new CorpusServiceImpl();
 	}
 	
-	 
+	  
 	public void testFindDependencies() throws Exception {
 		List<Dependency> list = this.service.findDependencies("have");
 		int govtotal = 0;
@@ -63,15 +66,23 @@ public class CorpusSearchTest extends CommonTest {
 		log.info("govtotal: " + govtotal);
 		log.info("deptotal: " + deptotal);
 	}
-	 	
+	  	
 	 
-   /*
+    
 	public void testFindGovernorSentences() throws Exception {
-		List<Sentence> list = this.service.findGovernors("have", "parataxis");
-		for (Sentence sent : list) {
-			log.info(sent.getLemma() + "/" + sent.getPOS() + "/" + sent.getTextWithMarkup());
+		
+		List<String> depTypes = new ArrayList<String>();
+		depTypes.add("parataxis");
+		depTypes.add("paramod");
+		
+		List<QueueAdapter> list = this.service.findGovernors("word", 
+				depTypes, 1, 50, true);
+		
+		for (QueueAdapter adapter : list) {
+			GovernorSentence sent = (GovernorSentence)adapter;
+			log.info(sent.getLemma() + "/" + sent.getPOS() + "/" + sent.getDependencyTypeName());
 		}
 	}
-	*/
+	 
 	 
 }
