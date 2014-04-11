@@ -26,7 +26,6 @@
        <module>wikicorpus-common</module>
        <module>wikicorpus-model</module>
        <module>wikicorpus-service</module>
-       <module>wikicorpus-mapreduce</module>
        <module>wikicorpus-export</module>
        <module>wikicorpus-nlp</module>
        <module>wikicorpus-index</module>

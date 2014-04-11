@@ -22,7 +22,6 @@ import org.cloudgraph.examples.corpus.wordnet.query.QWords;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.query.Expression;
 import org.plasma.query.Query;
-import org.plasma.sdo.access.client.HBasePojoDataAccessClient;
 import org.plasma.sdo.access.client.PojoDataAccessClient;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaXMLHelper;

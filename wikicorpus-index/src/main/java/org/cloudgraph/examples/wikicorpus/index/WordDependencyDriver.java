@@ -11,7 +11,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
-import org.cloudgraph.examples.corpus.wiki.query.QPage;
+import org.cloudgraph.examples.corpus.parse.query.QPageParse;
 import org.cloudgraph.hbase.mapreduce.GraphMapReduceSetup;
 import org.cloudgraph.hbase.service.CloudGraphContext;
 import org.plasma.query.model.Query;
@@ -100,10 +100,10 @@ public class WordDependencyDriver {
 	 * @return the query
 	 */
 	public static Query createInputQuery() {
-		QPage query = QPage.newQuery();
+		QPageParse query = QPageParse.newQuery();
 		query.select(query.pageTitle())
 		     .select(query.pageId())
-		     .select(query.document().body()) 
+		     .select(query.xml()) 
 		;
 		
 		return query.getModel();

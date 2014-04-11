@@ -19,7 +19,6 @@ import org.plasma.sdo.helper.PlasmaXMLHelper;
 import org.plasma.sdo.xml.DefaultOptions;
 
 import commonj.sdo.DataGraph;
-import commonj.sdo.Type;
 import commonj.sdo.helper.XMLDocument;
 
 public class CategoryExport {

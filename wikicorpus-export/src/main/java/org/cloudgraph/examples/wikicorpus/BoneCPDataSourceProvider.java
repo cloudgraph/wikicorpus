@@ -3,16 +3,15 @@ package org.cloudgraph.examples.wikicorpus;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.rdb.connect.DataSourceProvder;
+import org.plasma.config.ConfigurationConstants;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;
 import org.plasma.config.Property;
-import org.plasma.config.ConfigurationConstants;
 import org.plasma.sdo.access.DataAccessException;
 
 import com.jolbox.bonecp.BoneCPDataSource;

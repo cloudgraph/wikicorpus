@@ -5,20 +5,19 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
-import org.cloudgraph.examples.corpus.wiki.query.QPage;
+import org.cloudgraph.examples.corpus.parse.query.QPageParse;
 import org.cloudgraph.hbase.mapreduce.GraphMapReduceSetup;
 import org.cloudgraph.hbase.service.CloudGraphContext;
 import org.plasma.query.model.Query;
 
 /**
- * hadoop jar /home/lib/wikicorpus-index-0.5.1.jar org.cloudgraph.examples.corpus.index.ParsedWordDriver -libjars ${LIBJARS} 
+ * hadoop jar /home/lib/wikicorpus-index-0.5.1.jar org.cloudgraph.examples.wikicorpus.index.ParsedWordDriver -libjars ${LIBJARS} 
  */
 public class ParsedWordDriver {
 	private static Log log = LogFactory.getLog(ParsedWordDriver.class);
@@ -98,10 +97,9 @@ public class ParsedWordDriver {
 	 * @return the query
 	 */
 	public static Query createInputQuery() {
-		QPage query = QPage.newQuery();
-		query.select(query.pageTitle())
-		     .select(query.pageId())
-		     .select(query.document().body()) // serialized parse tree
+		QPageParse query = QPageParse.newQuery();
+		query.select(query.pageId())
+		     .select(query.xml())
 		;
 		
 		return query.getModel();

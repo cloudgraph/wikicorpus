@@ -13,18 +13,13 @@ import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.examples.corpus.parse.Dependency;
 import org.cloudgraph.examples.corpus.parse.DependencyRepresentation;
 import org.cloudgraph.examples.corpus.parse.DependencySet;
-import org.cloudgraph.examples.corpus.parse.DependencyType;
-import org.cloudgraph.examples.corpus.parse.Dependent;
 import org.cloudgraph.examples.corpus.parse.Document;
-import org.cloudgraph.examples.corpus.parse.Governor;
 import org.cloudgraph.examples.corpus.parse.Node;
 import org.cloudgraph.examples.corpus.parse.POS;
 import org.cloudgraph.examples.corpus.parse.Sentence;
-import org.cloudgraph.examples.corpus.wiki.Page;
+import org.cloudgraph.examples.corpus.parse.WordRelation;
+import org.cloudgraph.examples.corpus.parse.WordRelationType;
 
-import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetEndAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.IndexAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.LemmaAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.NamedEntityTagAnnotation;
@@ -32,6 +27,7 @@ import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentenceIndexAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
+import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.semgraph.SemanticGraph;
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.BasicDependenciesAnnotation;
@@ -39,9 +35,9 @@ import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcess
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation;
 import edu.stanford.nlp.trees.GrammaticalRelation;
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
 import edu.stanford.nlp.trees.TreePrint;
 import edu.stanford.nlp.trees.TypedDependency;
-import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 
 public class WikiAnnotator {
@@ -179,7 +175,8 @@ public class WikiAnnotator {
 			int govIndex = gov.get(IndexAnnotation.class);
 			Node label  = pageTokenMap.get(govIndex);
 			if (label != null) { // token not mapped as useless punctuation, etc...
-				Governor governor = pageDep.createGovernor();
+				WordRelation governor = pageDep.createRelation();
+				governor.setRelationType(WordRelationType.GOVERNOR.getInstanceName());
 				governor.setNode(label);
 			}
 			
@@ -187,7 +184,8 @@ public class WikiAnnotator {
 			int depIndex = dep.get(IndexAnnotation.class);
 			label  = pageTokenMap.get(depIndex);
 			if (label != null) {// token not mapped as useless punctuation, etc..
-				Dependent dependent = pageDep.createDependent();
+				WordRelation dependent = pageDep.createRelation();
+				dependent.setRelationType(WordRelationType.DEPENDENT.getInstanceName());
 				dependent.setNode(label);
 			}
 		}

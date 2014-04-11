@@ -12,7 +12,13 @@
         <dependent-module archiveName="cloudgraph-hbase-0.5.9.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/cloudgraph-hbase/cloudgraph-hbase">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="cloudgraph-config-0.5.9.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/cloudgraph-config/cloudgraph-config">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <dependent-module archiveName="wikicorpus-model-0.5.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/wikicorpus-model/wikicorpus-model">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="plasma-sdo-1.1.9.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/plasma-sdo/plasma-sdo">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="java-output-path" value="/corpora-web/target/classes"/>

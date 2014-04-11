@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.text.BreakIterator;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -43,7 +42,6 @@ import org.cloudgraph.examples.corpus.wiki.Revision;
 import org.cloudgraph.examples.wikicorpus.nlp.SentenceBreak;
 import org.cloudgraph.examples.wikicorpus.nlp.SentenceUtil;
 import org.cloudgraph.examples.wikicorpus.nlp.WikiAnnotator;
-import org.cloudgraph.examples.wikicorpus.nlp.WikiPageImporterMapper.Counters;
 import org.plasma.sdo.helper.PlasmaDataFactory;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
@@ -52,6 +50,7 @@ import org.plasma.sdo.xml.DefaultOptions;
 import commonj.sdo.DataGraph;
 import commonj.sdo.Type;
 import commonj.sdo.helper.XMLDocument;
+
 import edu.jhu.nlp.wikipedia.PageCallbackHandler;
 import edu.jhu.nlp.wikipedia.WikiPage;
 import edu.jhu.nlp.wikipedia.WikiXMLParser;
@@ -151,7 +150,10 @@ public class NLPWikiParseTest extends CommonTest {
 			org.cloudgraph.examples.corpus.wiki.Text text = revision.createPlainText();
 			text.setOldText(bytes);
 			
-			Document parseDocument = page.createDocument();
+			DataGraph docDataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
+			docDataGraph.getChangeSummary().beginLogging();
+			rootType = PlasmaTypeHelper.INSTANCE.getType(Document.class);
+			Document parseDocument = (Document) docDataGraph.createRootObject(rootType);
 			
 			parse(plainText, parseDocument);
 
@@ -159,7 +161,7 @@ public class NLPWikiParseTest extends CommonTest {
 			try {
 				xml = serialize(parseDocument);
 				log.info(xml);
-			    parseDocument.setBody(xml);
+				//text.setParseXmlText(xml);
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}

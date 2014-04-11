@@ -14,18 +14,19 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.cloudgraph.examples.corpus.parse.Dependency;
 import org.cloudgraph.examples.corpus.parse.DependencySet;
-import org.cloudgraph.examples.corpus.parse.Dependent;
 import org.cloudgraph.examples.corpus.parse.Document;
-import org.cloudgraph.examples.corpus.parse.Governor;
 import org.cloudgraph.examples.corpus.parse.Node;
+import org.cloudgraph.examples.corpus.parse.PageParse;
 import org.cloudgraph.examples.corpus.parse.Sentence;
-import org.cloudgraph.examples.corpus.wiki.Page;
+import org.cloudgraph.examples.corpus.parse.WordRelation;
+import org.cloudgraph.examples.corpus.parse.WordRelationType;
 import org.cloudgraph.hbase.mapreduce.GraphMapper;
 import org.cloudgraph.hbase.mapreduce.GraphWritable;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
 import org.plasma.sdo.xml.DefaultOptions;
 
 import commonj.sdo.helper.XMLDocument;
+
 
 public class WordDependencyMapper extends GraphMapper<Text, IntWritable> {
 	private static Log log = LogFactory.getLog(WordDependencyMapper.class);
@@ -54,11 +55,12 @@ public class WordDependencyMapper extends GraphMapper<Text, IntWritable> {
 			// track changes
 			graph.getDataGraph().getChangeSummary().beginLogging();
 
-			Page page = (Page) graph.getDataGraph().getRootObject();
+			PageParse pageParse = (PageParse) graph.getDataGraph().getRootObject();
 			//log.info("GRAPH: " + graph.toXMLString());
-			log.info(page.getPageTitle());
+			log.info(pageParse.getPageTitle());
 			
-			String bodyXml = page.getDocument().getBody();
+			
+			String bodyXml = pageParse.getXml();
 			Document parseDoc = deserialize(bodyXml, Document.NAMESPACE_URI);
 			
 
@@ -88,50 +90,45 @@ public class WordDependencyMapper extends GraphMapper<Text, IntWritable> {
 					continue;
 				for (DependencySet dset : dSets) {
 					for (Dependency dependency : dset.getDependency()) {
-						Governor governor = dependency.getGovernor();
-						if (governor == null || governor.getNode() == null) {
-							if (log.isDebugEnabled())
-							    log.debug("no governor for dependency " + dset.getRepresentation() + "/" + dependency.getType_() + " when processing sentence: "
-									+ sent.getCharacterOffsetBegin() + "/" + sent.getCharacterOffsetEnd());
-							continue;
+						for (WordRelation relation : dependency.getRelation()) {
+							if (WordRelationType.GOVERNOR.getInstanceName().equals(
+					    			relation.getRelationType())) {
+								Node govNode = relation.getNode();
+								if (govNode.getWord() == null) {
+									if (log.isDebugEnabled())
+									    log.debug("no governor word for dependency " + dset.getRepresentation() + "/" + dependency.getType_() + " when processing sentence: "
+											+ sent.getCharacterOffsetBegin() + "/" + sent.getCharacterOffsetEnd());
+									continue;
+								}
+								String key = getGovernorKey(govNode, dependency);
+								increment(key, result);
+								if (testLemma1.equals(govNode.getLemma()))
+								    context.getCounter(Counters.TEST_GOV_LEMMA_1).increment(1);
+								if (testLemma2.equals(govNode.getLemma()))
+								    context.getCounter(Counters.TEST_GOV_LEMMA_2).increment(1);
+							}
+							else if (WordRelationType.DEPENDENT.getInstanceName().equals(
+					    			relation.getRelationType())) {
+								
+								Node depNode = relation.getNode();
+								if (depNode.getWord() == null) {
+									if (log.isDebugEnabled())
+									    log.debug("no dependent word for dependency " + dset.getRepresentation() + "/" + dependency.getType_() + " when processing sentence: "
+											+ sent.getCharacterOffsetBegin() + "/" + sent.getCharacterOffsetEnd());
+									continue;
+								}						
+								
+								String key = getDependentKey(depNode, dependency);
+								increment(key, result);
+								
+								if (testLemma1.equals(depNode.getLemma()))
+								    context.getCounter(Counters.TEST_DEP_LEMMA_1).increment(1);
+								if (testLemma2.equals(depNode.getLemma()))
+								    context.getCounter(Counters.TEST_DEP_LEMMA_2).increment(1);
+							} 
+							else
+								throw new RuntimeException("unknown relation type, '" + relation.getRelationType() + "'");
 						}
-						Node govNode = governor.getNode();
-						if (govNode.getWord() == null) {
-							if (log.isDebugEnabled())
-							    log.debug("no governor word for dependency " + dset.getRepresentation() + "/" + dependency.getType_() + " when processing sentence: "
-									+ sent.getCharacterOffsetBegin() + "/" + sent.getCharacterOffsetEnd());
-							continue;
-						}
-						String key = getGovernorKey(govNode, dependency);
-						increment(key, result);
-						if (testLemma1.equals(govNode.getLemma()))
-						    context.getCounter(Counters.TEST_GOV_LEMMA_1).increment(1);
-						if (testLemma2.equals(govNode.getLemma()))
-						    context.getCounter(Counters.TEST_GOV_LEMMA_2).increment(1);
-						
-						
-						Dependent dependent = dependency.getDependent();
-						if (dependent == null || dependent.getNode() == null) {
-							if (log.isDebugEnabled())
-							    log.debug("no dependent for dependency " + dset.getRepresentation() + "/" + dependency.getType_() + " when processing sentence: "
-									+ sent.getCharacterOffsetBegin() + "/" + sent.getCharacterOffsetEnd());
-							continue;
-						}
-						Node depNode = dependent.getNode();
-						if (depNode.getWord() == null) {
-							if (log.isDebugEnabled())
-							    log.debug("no dependent word for dependency " + dset.getRepresentation() + "/" + dependency.getType_() + " when processing sentence: "
-									+ sent.getCharacterOffsetBegin() + "/" + sent.getCharacterOffsetEnd());
-							continue;
-						}						
-						
-						key = getDependentKey(depNode, dependency);
-						increment(key, result);
-						
-						if (testLemma1.equals(depNode.getLemma()))
-						    context.getCounter(Counters.TEST_DEP_LEMMA_1).increment(1);
-						if (testLemma2.equals(depNode.getLemma()))
-						    context.getCounter(Counters.TEST_DEP_LEMMA_2).increment(1);
 					}
 				}
 			}

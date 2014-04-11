@@ -7,8 +7,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
-import org.cloudgraph.examples.corpus.search.WordDependency;
-import org.cloudgraph.examples.corpus.search.query.QWordDependency;
+import org.cloudgraph.examples.corpus.search.WordDependencyAggregate;
+import org.cloudgraph.examples.corpus.search.query.QWordDependencyAggregate;
 import org.cloudgraph.hbase.mapreduce.GraphReducer;
 import org.plasma.query.Query;
 import org.plasma.sdo.helper.PlasmaDataFactory;
@@ -69,8 +69,8 @@ public class WordDependencyReducer extends
 		if (graphs == null || graphs.length == 0) {
 			dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
 			dataGraph.getChangeSummary().beginLogging();
-			Type rootType = PlasmaTypeHelper.INSTANCE.getType(WordDependency.class);
-			WordDependency wordDependency = (WordDependency) dataGraph.createRootObject(rootType);
+			Type rootType = PlasmaTypeHelper.INSTANCE.getType(WordDependencyAggregate.class);
+			WordDependencyAggregate wordDependency = (WordDependencyAggregate) dataGraph.createRootObject(rootType);
 			wordDependency.setLemma(word);
 			wordDependency.setDependencyType(depType);
 			this.updateAggregates(wordDependency, prefix, depType, sum);
@@ -80,14 +80,14 @@ public class WordDependencyReducer extends
 				throw new RuntimeException("expected governor single row");
 			dataGraph = graphs[0];
 			dataGraph.getChangeSummary().beginLogging();
-			WordDependency wordDependency = (WordDependency) dataGraph.getRootObject();
+			WordDependencyAggregate wordDependency = (WordDependencyAggregate) dataGraph.getRootObject();
 			this.updateAggregates(wordDependency, prefix, depType, sum);
 		}
 		
 		this.commit(dataGraph, context);
 	}
 	
-	private void updateAggregates(WordDependency wordDependency, String prefix,
+	private void updateAggregates(WordDependencyAggregate wordDependency, String prefix,
 			String depType, int sum) {
 		if ("g".equals(prefix)) {
 			wordDependency.setGovernorCount(sum);
@@ -100,7 +100,7 @@ public class WordDependencyReducer extends
 	}
 	
 	private Query createQuery(String word, String type) {
-		QWordDependency query = QWordDependency.newQuery();
+		QWordDependencyAggregate query = QWordDependencyAggregate.newQuery();
 		query.select(query.wildcard());
 		query.where(query.lemma().eq(word).and(query.dependencyType().eq(type)));
 		return query;		

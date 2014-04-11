@@ -31,10 +31,7 @@ import org.cloudgraph.examples.wikicorpus.service.QueueAdapter;
 import org.cloudgraph.examples.wikicorpus.service.corpus.CorpusService;
 import org.cloudgraph.examples.wikicorpus.service.corpus.CorpusServiceImpl;
 import org.cloudgraph.examples.wikicorpus.service.corpus.Dependency;
-import org.cloudgraph.examples.wikicorpus.service.corpus.GovernorSentence;
 import org.cloudgraph.examples.wikicorpus.service.corpus.Sentence;
-import org.cloudgraph.examples.corpus.parse.Governor;
-import org.cloudgraph.examples.corpus.search.WordDependency;
 
 /**
  */
@@ -79,7 +76,7 @@ public class CorpusSearchTest extends CommonTest {
 				depTypes, 1, 50, true);
 		
 		for (QueueAdapter adapter : list) {
-			GovernorSentence sent = (GovernorSentence)adapter;
+			Sentence sent = (Sentence)adapter;
 			log.info(sent.getLemma() + "/" + sent.getPOS() + "/" + sent.getDependencyTypeName());
 		}
 	}

@@ -167,7 +167,7 @@
 		            <manifest>
 		              <addClasspath>true</addClasspath>
 		                
-		              <mainClass>org.cloudgraph.examples.corpus.nlp.WikiPageImporterDriver</mainClass>
+		              <mainClass>org.cloudgraph.examples.wikicorpus.nlp.WikiPageImporterDriver</mainClass>
 		               
 		            </manifest>
 		          </archive>

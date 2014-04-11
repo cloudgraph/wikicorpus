@@ -10,9 +10,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.examples.corpus.wiki.Categorylinks;
 import org.cloudgraph.examples.corpus.wiki.Page;
-import org.cloudgraph.examples.corpus.wiki.Pagelinks;
 import org.cloudgraph.examples.corpus.wiki.Revision;
 import org.cloudgraph.examples.corpus.wiki.Text;
 import org.plasma.config.DataAccessProviderName;
@@ -26,6 +24,7 @@ import org.plasma.sdo.xml.DefaultOptions;
 import commonj.sdo.DataGraph;
 import commonj.sdo.Type;
 import commonj.sdo.helper.XMLDocument;
+
 import edu.jhu.nlp.wikipedia.PageCallbackHandler;
 import edu.jhu.nlp.wikipedia.WikiPage;
 import edu.jhu.nlp.wikipedia.WikiXMLParser;

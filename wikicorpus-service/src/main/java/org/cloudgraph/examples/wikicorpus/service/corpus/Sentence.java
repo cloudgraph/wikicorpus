@@ -2,27 +2,33 @@ package org.cloudgraph.examples.wikicorpus.service.corpus;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.examples.wikicorpus.service.QueueAdapter;
 import org.cloudgraph.examples.corpus.parse.Dependency;
 import org.cloudgraph.examples.corpus.parse.Node;
+import org.cloudgraph.examples.corpus.parse.WordRelation;
+import org.cloudgraph.examples.corpus.parse.WordRelationType;
+import org.cloudgraph.examples.wikicorpus.service.QueueAdapter;
 
 public class Sentence extends QueueAdapter {
 	private static Log log = LogFactory.getLog(Sentence.class);
+	protected WordRelation relation;
     protected Dependency dependency;
     protected Node node;
     private Sentence() {}
-    protected Sentence(Dependency dependency, Node node) {
+    public Sentence(WordRelation relation) {
 		super();
-		this.dependency = dependency;
-		this.node = node;
+		this.relation = relation;
+		this.dependency = this.relation.getDependency();
+		this.node = relation.getNode();
 	}
     
     public boolean getIsGovernor() {
-    	return this instanceof GovernorSentence;
+    	return WordRelationType.GOVERNOR.getInstanceName().equals(
+    			this.relation.getRelationType());
     }
     
     public boolean getIsDependent() {
-    	return this instanceof DependentSentence;
+    	return WordRelationType.DEPENDENT.getInstanceName().equals(
+    			this.relation.getRelationType());
     }
     
 	public String getPOS() {

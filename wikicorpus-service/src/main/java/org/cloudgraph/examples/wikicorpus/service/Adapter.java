@@ -2,7 +2,6 @@ package org.cloudgraph.examples.wikicorpus.service;
 
 import java.io.Serializable;
 
-
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 

@@ -1,19 +1,13 @@
 package org.cloudgraph.examples.wikicorpus.index;
 
 import java.io.IOException;
-import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.cloudgraph.examples.corpus.search.ParsedWordAggregate;
-import org.cloudgraph.examples.corpus.search.WordAggregate;
-import org.cloudgraph.examples.corpus.search.WordDependency;
 import org.cloudgraph.examples.corpus.search.query.QParsedWordAggregate;
-import org.cloudgraph.examples.corpus.search.query.QWordAggregate;
-import org.cloudgraph.examples.corpus.search.query.QWordDependency;
 import org.cloudgraph.hbase.mapreduce.GraphReducer;
 import org.plasma.query.Query;
 import org.plasma.sdo.helper.PlasmaDataFactory;

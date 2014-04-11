@@ -11,13 +11,13 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
-import org.cloudgraph.examples.corpus.wiki.query.QPage;
+import org.cloudgraph.examples.corpus.parse.query.QPageParse;
 import org.cloudgraph.hbase.mapreduce.GraphMapReduceSetup;
 import org.cloudgraph.hbase.service.CloudGraphContext;
 import org.plasma.query.model.Query;
 
 /**
- * hadoop jar /home/lib/wikicorpus-index-0.5.1.jar org.cloudgraph.examples.corpus.index.SentenceProcessorDriver -libjars ${LIBJARS} 
+ * hadoop jar /home/lib/wikicorpus-index-0.5.1.jar org.cloudgraph.examples.wikicorpus.index.SentenceProcessorDriver -libjars ${LIBJARS} 
 */
 public class SentenceProcessorDriver {
 	private static Log log = LogFactory.getLog(SentenceProcessorDriver.class);
@@ -93,11 +93,11 @@ public class SentenceProcessorDriver {
 	}
 
 	public static Query createInputQuery() {
-		QPage query = QPage.newQuery();
+		QPageParse query = QPageParse.newQuery();
 		query.select(query.pageTitle())
 		     .select(query.pageId())
-		     .select(query.revision().plainText().oldText())
-		     .select(query.document().sentence().wildcard())
+		     .select(query.document().wildcard())
+		     .select(query.document().sentence().wildcard()) // more...
 		;
 		return query.getModel();
 	}

@@ -53,10 +53,10 @@
     
     <Table name="WIKI_PARSE" dataColumnFamilyName="f1">
        <HashAlgorithm name="murmur"/>        
-       <DataGraph uri="http://cloudgraph.org/examples/corpus/parse" type="Document">
+        <DataGraph uri="http://cloudgraph.org/examples/corpus/parse" type="PageParse">
             <RowKeyModel>
                 <RowKeyField>
-                    <PredefinedField name="uuid"/>
+                    <UserDefinedField path="pageId"/>
                 </RowKeyField>
             </RowKeyModel>
             
@@ -65,9 +65,29 @@
                 <ColumnKeyField name="type"/>
                 <ColumnKeyField name="property"/>
             </ColumnKeyModel>
-       </DataGraph>        
+        </DataGraph>        
+    </Table>
+    
+    <Table name="WIKI_PARSE_TREE" dataColumnFamilyName="f1">
+       <HashAlgorithm name="murmur"/>        
+        <DataGraph uri="http://cloudgraph.org/examples/corpus/parse" type="Document">
+            <RowKeyModel>
+                <RowKeyField>
+                    <UserDefinedField path="pageId"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="pkg"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+       </DataGraph>              
        <DataGraph uri="http://cloudgraph.org/examples/corpus/parse" type="Sentence">
             <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
                 <RowKeyField>
                     <PredefinedField name="uuid"/>
                 </RowKeyField>
@@ -82,6 +102,9 @@
        <DataGraph uri="http://cloudgraph.org/examples/corpus/parse" type="DependencySet">
             <RowKeyModel>
                 <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
                     <PredefinedField name="uuid"/>
                 </RowKeyField>
             </RowKeyModel>
@@ -94,6 +117,9 @@
         </DataGraph>        
        <DataGraph uri="http://cloudgraph.org/examples/corpus/parse" type="Dependency">
             <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
                 <RowKeyField>
                     <PredefinedField name="uuid"/>
                 </RowKeyField>
@@ -108,6 +134,9 @@
        <DataGraph uri="http://cloudgraph.org/examples/corpus/parse" type="Node">
             <RowKeyModel>
                 <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
                     <PredefinedField name="uuid"/>
                 </RowKeyField>
             </RowKeyModel>
@@ -119,13 +148,16 @@
             </ColumnKeyModel>
         </DataGraph>   
         
-       <DataGraph uri="http://cloudgraph.org/examples/corpus/parse" type="Governor">
+       <DataGraph uri="http://cloudgraph.org/examples/corpus/parse" type="WordRelation">
             <RowKeyModel>
                 <RowKeyField>
                     <PredefinedField name="type" hash="false"/>
                 </RowKeyField>
                 <RowKeyField>
                     <UserDefinedField path="node/lemma"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="relationType"/>
                 </RowKeyField>
                 <RowKeyField>
                     <UserDefinedField path="dependency/type"/>
@@ -145,19 +177,22 @@
             </ColumnKeyModel>
        </DataGraph>        
              
-       <DataGraph uri="http://cloudgraph.org/examples/corpus/parse" type="Dependent">
+       <DataGraph uri="http://cloudgraph.org/examples/corpus/parse" type="WordDependency">
             <RowKeyModel>
                 <RowKeyField>
                     <PredefinedField name="type" hash="false"/>
                 </RowKeyField>
                 <RowKeyField>
-                    <UserDefinedField path="node/lemma"/>
+                    <UserDefinedField path="lemma"/>
                 </RowKeyField>
                 <RowKeyField>
-                    <UserDefinedField path="dependency/type"/>
+                    <UserDefinedField path="relationType"/>
                 </RowKeyField>
                 <RowKeyField>
-                    <UserDefinedField path="node/pos"/>
+                    <UserDefinedField path="type"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="pos"/>
                 </RowKeyField>
                 <RowKeyField>
                     <PredefinedField name="uuid"/>
@@ -175,7 +210,7 @@
     <Table name="WIKI_INDEX" dataColumnFamilyName="f1">
        <HashAlgorithm name="murmur"/>
          
-       <DataGraph uri="http://cloudgraph.org/examples/corpus/search" type="WordDependency">
+       <DataGraph uri="http://cloudgraph.org/examples/corpus/search" type="WordDependencyAggregate">
             <RowKeyModel>
                 <RowKeyField>
                     <PredefinedField name="type" hash="false"/>

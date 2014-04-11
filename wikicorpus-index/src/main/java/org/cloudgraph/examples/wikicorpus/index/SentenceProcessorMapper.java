@@ -10,9 +10,8 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.cloudgraph.examples.corpus.parse.Document;
+import org.cloudgraph.examples.corpus.parse.PageParse;
 import org.cloudgraph.examples.corpus.parse.Sentence;
-import org.cloudgraph.examples.corpus.wiki.Page;
-import org.cloudgraph.examples.corpus.wiki.Revision;
 import org.cloudgraph.hbase.mapreduce.GraphMapper;
 import org.cloudgraph.hbase.mapreduce.GraphWritable;
 
@@ -39,17 +38,14 @@ public class SentenceProcessorMapper extends GraphMapper<Text, IntWritable> {
 			// track changes
 			graph.getDataGraph().getChangeSummary().beginLogging();
 
-			Page page = (Page) graph.getDataGraph().getRootObject();
+			PageParse pageParse = (PageParse) graph.getDataGraph().getRootObject();
 			//log.info("GRAPH: " + graph.toXMLString());
-			log.info(page.getPageTitle());
+			log.info(pageParse.getPageTitle());
 			
-			Revision revision = page.getRevision(0);
-			byte[] textBytes = revision.getPlainText().getOldText();
-			String plainTExt = new String(textBytes, "UTF-8");
 			
-			process(page.getDocument(), plainTExt, context);
+			process(pageParse.getDocument(), pageParse.getXml(), context);
 			
-			commit(page.getDataGraph(), context);
+			commit(pageParse.getDataGraph(), context);
 			
 			context.getCounter(Counters.PAGES_PROCESSED).increment(1);
 

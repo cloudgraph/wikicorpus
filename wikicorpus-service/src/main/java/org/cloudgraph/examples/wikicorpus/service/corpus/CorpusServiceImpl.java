@@ -1,7 +1,6 @@
 package org.cloudgraph.examples.wikicorpus.service.corpus;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,13 +8,12 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.examples.wikicorpus.service.QueueAdapter;
-import org.cloudgraph.examples.corpus.parse.Dependent;
-import org.cloudgraph.examples.corpus.parse.Governor;
-import org.cloudgraph.examples.corpus.parse.query.QDependent;
-import org.cloudgraph.examples.corpus.parse.query.QGovernor;
+import org.cloudgraph.examples.corpus.parse.WordRelation;
+import org.cloudgraph.examples.corpus.parse.WordRelationType;
+import org.cloudgraph.examples.corpus.parse.query.QWordRelation;
 import org.cloudgraph.examples.corpus.search.WordDependency;
 import org.cloudgraph.examples.corpus.search.query.QWordDependency;
+import org.cloudgraph.examples.wikicorpus.service.QueueAdapter;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.query.Expression;
 import org.plasma.query.Query;
@@ -130,6 +128,28 @@ public class CorpusServiceImpl implements CorpusService {
 		query.orderBy(query.dependencyType());
 		return query;		
 	}
+	
+	@Override
+    public List<QueueAdapter> findRelations(String word, List<String> dependencyTypes, 
+    		Integer startRange, Integer endRange, 
+			boolean asc) {
+		
+		List<QueueAdapter> result = new ArrayList<QueueAdapter>();
+		Query query = createRelationQuery(word, null, dependencyTypes); 
+		if (startRange != null && endRange != null) {
+			query.setStartRange(startRange);
+			query.setEndRange(endRange);
+		}
+		DataGraph[] graphs = this.service.find(query);
+		int i = 0;
+		for (DataGraph graph : graphs) {
+			Sentence sent = new Sentence((WordRelation)graph.getRootObject());
+			result.add(sent);
+			sent.setIndex(i);
+			i++;
+		}
+		return result;
+	}
 
 	@Override
 	public List<QueueAdapter> findGovernors(String word, List<String> dependencyTypes,
@@ -144,7 +164,7 @@ public class CorpusServiceImpl implements CorpusService {
 		DataGraph[] graphs = this.service.find(query);
 		int i = 0;
 		for (DataGraph graph : graphs) {
-			Sentence sent = new GovernorSentence((Governor)graph.getRootObject());
+			Sentence sent = new Sentence((WordRelation)graph.getRootObject());
 			result.add(sent);
 			sent.setIndex(i);
 			i++;
@@ -165,7 +185,7 @@ public class CorpusServiceImpl implements CorpusService {
 		DataGraph[] graphs = this.service.find(query);
 		int i = 0;
 		for (DataGraph graph : graphs) {
-			Sentence sent = new DependentSentence((Dependent)graph.getRootObject());
+			Sentence sent = new Sentence((WordRelation)graph.getRootObject());
 			result.add(sent);
 			sent.setIndex(i);
 			i++;
@@ -174,34 +194,16 @@ public class CorpusServiceImpl implements CorpusService {
 	}
 		
 	private Query createGovernorQuery(String lemma, List<String> dependencyTypes) {
-		QGovernor query = QGovernor.newQuery();
-		query.select(query.wildcard())
-		     .select(query.dependency().wildcard())
-		     .select(query.dependency().dependencySet().sentence().wildcard())
-		     .select(query.dependency().dependencySet().sentence().document().page().pageTitle())
-		     .select(query.node().wildcard())
-		;
-		 
-		Expression typesExpr = null;
-		if (dependencyTypes != null && dependencyTypes.size() > 0) {
-			typesExpr = query.dependency().type().eq(dependencyTypes.get(0));
-			for (int i = 1; i < dependencyTypes.size(); i++) {
-				typesExpr.or(
-					query.dependency().type().eq(dependencyTypes.get(i)));
-			}
-		}
-		if (typesExpr != null)
-		    typesExpr = query.group(typesExpr); 
-		
-		if (typesExpr != null)
-			query.where(query.node().lemma().eq(lemma).and(typesExpr));
-		else
-			query.where(query.node().lemma().eq(lemma));
-		return query;		
+		return createRelationQuery(lemma, WordRelationType.GOVERNOR, dependencyTypes);
 	}
 
 	private Query createDependentQuery(String lemma, List<String> dependencyTypes) {
-		QDependent query = QDependent.newQuery();
+		return createRelationQuery(lemma, WordRelationType.DEPENDENT, dependencyTypes);
+	}
+	
+	private Query createRelationQuery(String lemma, WordRelationType relationType, 
+			List<String> dependencyTypes) {
+		QWordRelation query = QWordRelation.newQuery();
 		query.select(query.wildcard())
 		     .select(query.dependency().wildcard())
 		     .select(query.dependency().dependencySet().sentence().wildcard())
@@ -219,10 +221,27 @@ public class CorpusServiceImpl implements CorpusService {
 		if (typesExpr != null)
 		    typesExpr = query.group(typesExpr); 
 		
-		if (typesExpr != null)
-			query.where(query.node().lemma().eq(lemma).and(typesExpr));
-		else
-			query.where(query.node().lemma().eq(lemma));
+		if (typesExpr != null) {
+			if (relationType != null) {
+			    query.where(query.node().lemma().eq(lemma)
+				     .and(query.relationType().eq(relationType.getInstanceName())
+				     .and(typesExpr)));
+			}
+			else {
+			    query.where(query.node().lemma().eq(lemma)
+				     .and(typesExpr));
+			}
+		}
+		else {
+			if (relationType != null) {
+			    query.where(query.node().lemma().eq(lemma)
+				     .and(query.relationType().eq(relationType.getInstanceName())));
+			}
+			else {
+			    query.where(query.node().lemma().eq(lemma));
+			}
+		}
 		return query;		
 	}
+	
 }

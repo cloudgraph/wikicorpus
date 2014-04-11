@@ -10,17 +10,12 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.cloudgraph.examples.corpus.parse.Dependency;
-import org.cloudgraph.examples.corpus.parse.DependencySet;
-import org.cloudgraph.examples.corpus.parse.Dependent;
 import org.cloudgraph.examples.corpus.parse.Document;
-import org.cloudgraph.examples.corpus.parse.Governor;
 import org.cloudgraph.examples.corpus.parse.Node;
+import org.cloudgraph.examples.corpus.parse.PageParse;
 import org.cloudgraph.examples.corpus.parse.Sentence;
-import org.cloudgraph.examples.corpus.wiki.Page;
 import org.cloudgraph.hbase.mapreduce.GraphMapper;
 import org.cloudgraph.hbase.mapreduce.GraphWritable;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
@@ -55,11 +50,11 @@ public class ParsedWordMapper extends GraphMapper<Text, LongWritable> {
 			// track changes
 			graph.getDataGraph().getChangeSummary().beginLogging();
 
-			Page page = (Page) graph.getDataGraph().getRootObject();
+			PageParse pageParse = (PageParse) graph.getDataGraph().getRootObject();
 			//log.info("GRAPH: " + graph.toXMLString());
-			log.info(page.getPageTitle());
+			log.info(pageParse.getPageId());
 			
-			String bodyXml = page.getDocument().getBody();
+			String bodyXml = pageParse.getXml();
 			Document parseDoc = deserialize(bodyXml, Document.NAMESPACE_URI);
 			
 
